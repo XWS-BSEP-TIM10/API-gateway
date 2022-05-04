@@ -4,9 +4,7 @@ import com.apigateway.dto.NewUserDTO;
 import com.apigateway.service.AuthService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.AuthGrpcServiceGrpc;
-import proto.NewUserProto;
-import proto.NewUserResponseProto;
+import proto.*;
 
 @Component
 public class AuthServiceImpl implements AuthService {
@@ -28,5 +26,12 @@ public class AuthServiceImpl implements AuthService {
                 .setBiography(newUserDTO.getBiography())
                 .build();
         return this.stub.addUser(newUserProto);
+    }
+
+    @Override
+    public LoginResponseProto login(String username, String password) {
+        LoginProto loginProto = LoginProto.newBuilder().setUsername(username)
+                .setPassword(password).build();
+        return this.stub.login(loginProto);
     }
 }
