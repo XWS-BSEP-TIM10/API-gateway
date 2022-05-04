@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+import "postModel.proto";
+
+service PostGrpcService{
+  rpc addReaction (AddReactionProto) returns (AddReactionResponseProto);
+}
