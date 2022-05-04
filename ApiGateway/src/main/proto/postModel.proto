@@ -23,3 +23,16 @@ message AddPostResponseProto{
   string status = 1;
   string id = 2;
 }
+
+message CommentPostProto{
+  string userId = 1;
+  string postId = 2;
+  string comment = 3;
+}
+
+message CommentPostResponseProto{
+  string status = 1;
+  string comment = 2;
+}
+
+

@@ -35,4 +35,14 @@ public class PostServiceImpl implements PostService {
                                             .build();
         return this.stub.addReaction(addReactionProto);
     }
+
+    @Override
+    public CommentPostResponseProto addComment(String postId, String userId, String text) {
+        CommentPostProto commentPostProto = CommentPostProto.newBuilder()
+                                            .setPostId(postId)
+                                            .setUserId(userId)
+                                            .setComment(text)
+                                            .build();
+        return this.stub.commentPost(commentPostProto);
+    }
 }

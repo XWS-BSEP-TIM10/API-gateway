@@ -1,8 +1,6 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.NewPostRequestDTO;
-import com.apigateway.dto.NewPostResponseDTO;
-import com.apigateway.dto.ReactionDTO;
+import com.apigateway.dto.*;
 import com.apigateway.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import proto.AddPostResponseProto;
 import proto.AddReactionResponseProto;
+import proto.CommentPostResponseProto;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Base64;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -42,4 +42,11 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping(value = "users/{userId}/posts/{postId}/comment")
+    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String userId, @PathVariable String postId, @RequestBody NewCommentDTO dto) {
+        CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, userId, dto.getText());
+        if (commentPostResponseProto.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
+        CommentResponseDTO commentResponseDTO = new CommentResponseDTO(commentPostResponseProto.getComment());
+        return ResponseEntity.ok(commentResponseDTO);
+    }
 }

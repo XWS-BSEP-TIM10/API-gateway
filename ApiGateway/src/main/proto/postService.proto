@@ -7,4 +7,5 @@ import "postModel.proto";
 service PostGrpcService{
   rpc addPost(AddPostProto) returns (AddPostResponseProto);
   rpc addReaction (AddReactionProto) returns (AddReactionResponseProto);
+  rpc commentPost(CommentPostProto) returns (CommentPostResponseProto);
 }
