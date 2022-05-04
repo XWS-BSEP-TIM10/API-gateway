@@ -16,4 +16,6 @@ public interface PostService {
     CommentPostResponseProto addComment(String postId, String userId, String text);
 
     UserPostsResponseProto getPostsFromUser(String id);
+
+    UserPostsResponseProto getFeed(String id);
 }

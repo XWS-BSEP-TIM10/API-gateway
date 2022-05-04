@@ -52,4 +52,10 @@ public class PostServiceImpl implements PostService {
         UserPostsProto userPostsProto = UserPostsProto.newBuilder().setUserId(id).build();
         return this.stub.getUserPosts(userPostsProto);
     }
+
+    @Override
+    public UserPostsResponseProto getFeed(String id) {
+        UserPostsProto userPostsProto = UserPostsProto.newBuilder().setUserId(id).build();
+        return this.stub.getUserFeed(userPostsProto);
+    }
 }

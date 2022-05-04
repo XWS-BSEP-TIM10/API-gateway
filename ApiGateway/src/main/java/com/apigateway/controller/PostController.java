@@ -61,4 +61,16 @@ public class PostController {
         }
         return ResponseEntity.ok(responseDTOS);
     }
+
+    @GetMapping(value = "users/{id}/feed")
+    public ResponseEntity<List<PostsResponseDTO>> userFeed(@PathVariable String id) {
+        UserPostsResponseProto posts = postService.getFeed(id);
+        List<PostsResponseDTO> responseDTOS = new ArrayList<>();
+        for (PostProto post : posts.getPostsList()) {
+            PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post);
+            responseDTOS.add(postsResponseDTO);
+        }
+        return ResponseEntity.ok(responseDTOS);
+
+    }
 }
