@@ -12,3 +12,14 @@ message AddReactionProto{
 message AddReactionResponseProto{
   string status = 1;
 }
+
+message AddPostProto{
+  string ownerId = 1;
+  string text = 2;
+  bytes image = 3;
+}
+
+message AddPostResponseProto{
+  string status = 1;
+  string id = 2;
+}
