@@ -35,4 +35,26 @@ message CommentPostResponseProto{
   string comment = 2;
 }
 
+message UserPostsProto{
+    string userId = 1;
+}
 
+message UserPostsResponseProto{
+    repeated PostProto posts = 1;
+}
+
+message PostProto{
+    string postId = 1;
+    string text = 2;
+    string ownerId = 3;
+    repeated string likes = 4;
+    repeated string dislikes = 5;
+    repeated CommentProto comments = 6;
+    string creationDate = 7;
+    string image = 8;
+}
+
+message CommentProto{
+    string userId = 1;
+    string text = 2;
+}

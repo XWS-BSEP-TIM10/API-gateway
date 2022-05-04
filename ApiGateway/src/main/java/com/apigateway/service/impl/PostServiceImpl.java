@@ -4,6 +4,7 @@ import com.apigateway.dto.NewPostRequestDTO;
 import com.apigateway.service.PostService;
 import com.google.protobuf.ByteString;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import proto.*;
@@ -44,5 +45,11 @@ public class PostServiceImpl implements PostService {
                                             .setComment(text)
                                             .build();
         return this.stub.commentPost(commentPostProto);
+    }
+
+    @Override
+    public UserPostsResponseProto getPostsFromUser(String id) {
+        UserPostsProto userPostsProto = UserPostsProto.newBuilder().setUserId(id).build();
+        return this.stub.getUserPosts(userPostsProto);
     }
 }
