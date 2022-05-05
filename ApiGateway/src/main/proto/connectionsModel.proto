@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+
+message CreateConnectionRequestProto {
+  string initiatorId = 1;
+  string connectingId = 2;
+}
+
+message RespondConnectionRequestProto {
+  string initiatorId = 1;
+  string connectingId = 2;
+  bool approve = 3;
+}
+
+message ConnectionResponseProto {
+  string status = 1;
+}
