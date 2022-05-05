@@ -3,6 +3,7 @@ package com.apigateway.dto;
 import proto.CommentProto;
 import proto.PostProto;
 
+import javax.xml.stream.events.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class PostsResponseDTO {
     private String ownerId;
     private List<String> likes;
     private List<String> dislikes;
-    private List<NewCommentDTO> comments;
+    private List<CommentDTO> comments;
     private String creationDate;
     private String image;
 
@@ -24,7 +25,7 @@ public class PostsResponseDTO {
         this.dislikes = post.getDislikesList();
         this.comments = new ArrayList<>();
         for(CommentProto comment : post.getCommentsList()){
-            this.comments.add(new NewCommentDTO(comment.getText()));
+            this.comments.add(new CommentDTO(comment.getText(), comment.getUserId()));
         }
         this.creationDate = post.getCreationDate();
         this.image = post.getImage();
@@ -59,11 +60,11 @@ public class PostsResponseDTO {
         this.dislikes = dislikes;
     }
 
-    public List<NewCommentDTO> getComments() {
+    public List<CommentDTO> getComments() {
         return comments;
     }
 
-    public void setComments(List<NewCommentDTO> comments) {
+    public void setComments(List<CommentDTO> comments) {
         this.comments = comments;
     }
 
