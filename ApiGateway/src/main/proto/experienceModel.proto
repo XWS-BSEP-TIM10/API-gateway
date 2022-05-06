@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+message NewExperienceProto{
+ 	 string userId = 1;
+     string institution = 2;
+     string position = 3;
+     string fromDate = 4;
+     string toDate = 5;
+     string description = 6;
+     string type = 7; 	
+}
+
+message NewExperienceResponseProto{
+	 int64 id = 1;
+     string position = 2;
+     string fromDate = 3;
+     string toDate = 4;
+     string description = 5;
+     string type = 6;
+     string status = 7;
+}
+
+message UpdateExperienceProto{
+ 	 string userId = 1;
+     string institution = 2;
+     string position = 3;
+     string fromDate = 4;
+     string toDate = 5;
+     string description = 6;
+     string type = 7; 	
+     int64 id = 8;
+}
+
+message UpdateExperienceResponseProto{
+	 int64 id = 1;
+     string position = 2;
+     string fromDate = 3;
+     string toDate = 4;
+     string description = 5;
+     string type = 6;
+     string status = 7;
+}
+
+message RemoveExperienceProto{
+     int64 id = 1;
+}
+
+message RemoveExperienceResponseProto{
+     string status = 1;
+}
