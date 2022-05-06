@@ -21,3 +21,43 @@ message UpdateUserResponseProto{
        string message = 2;
        string status = 3;
 }
+
+message FindUserProto{
+	 string firstName = 1;
+     string lastName = 2;
+}
+
+message FindUserResponseProto{
+	repeated UserProto users = 1;
+	string status = 2;
+}
+
+message UserProto{
+	 string uuid = 1;
+     string firstName = 2;
+     string lastName = 3;
+     string email = 4;
+     string phoneNumber = 5;
+     string gender = 6;
+     string dateOfBirth = 7;
+     string username = 8;
+     string biography = 9;
+     repeated ExperienceProto experiences = 10;
+     repeated InterestProto interests = 11;
+     
+}
+
+message ExperienceProto {
+	 int64 id = 1;
+     string position = 2;
+     string fromDate = 3;
+     string toDate = 4;
+     string description = 5;
+     string type = 6;
+     string institution = 7;
+}
+
+message InterestProto {
+	 int64 id = 1;
+     string description = 2;
+}

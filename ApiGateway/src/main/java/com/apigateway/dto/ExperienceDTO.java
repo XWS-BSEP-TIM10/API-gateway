@@ -1,5 +1,6 @@
 package com.apigateway.dto;
 
+import proto.ExperienceProto;
 import proto.NewExperienceResponseProto;
 import proto.UpdateExperienceResponseProto;
 
@@ -8,6 +9,8 @@ public class ExperienceDTO {
 	 private Long id;
 
 	    private String position;
+	    
+	    private String institution;
 
 	    private String fromDate;
 
@@ -32,6 +35,16 @@ public class ExperienceDTO {
 	    public ExperienceDTO(UpdateExperienceResponseProto proto) {
 	    	this.id = proto.getId();
 	    	this.position = proto.getPosition();
+	    	this.fromDate = proto.getFromDate();
+	    	this.toDate = proto.getToDate();
+	    	this.description = proto.getDescription();
+	    	this.type = proto.getType();
+	    }
+	    
+	    public ExperienceDTO(ExperienceProto proto) {
+	    	this.id = proto.getId();
+	    	this.position = proto.getPosition();
+	    	this.institution = proto.getInstitution();
 	    	this.fromDate = proto.getFromDate();
 	    	this.toDate = proto.getToDate();
 	    	this.description = proto.getDescription();
@@ -86,5 +99,15 @@ public class ExperienceDTO {
 	    public void setType(String type) {
 	        this.type = type;
 	    }
+
+		public String getInstitution() {
+			return institution;
+		}
+
+		public void setInstitution(String institution) {
+			this.institution = institution;
+		}
+	    
+	    
 	    
 }
