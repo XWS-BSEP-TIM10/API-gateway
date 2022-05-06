@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+import "interestModel.proto";
+
+service InterestGrpcService{
+  rpc add (NewInterestProto) returns (NewInterestResponseProto);
+  rpc remove (RemoveInterestProto) returns (RemoveInterestResponseProto);
+}

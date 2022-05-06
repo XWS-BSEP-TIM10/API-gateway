@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+message UpdateUserProto{
+ 	 string uuid = 1;
+     string firstName = 2;
+     string lastName = 3;
+     string email = 4;
+     string phoneNumber = 5;
+     string gender = 6;
+     string dateOfBirth = 7;
+     string username = 8;
+     string password = 9;
+     string biography = 10;
+}
+
+message UpdateUserResponseProto{
+	   bool success = 1;
+       string message = 2;
+       string status = 3;
+}

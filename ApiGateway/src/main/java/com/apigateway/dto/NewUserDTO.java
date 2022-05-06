@@ -1,6 +1,8 @@
 package com.apigateway.dto;
 
 public class NewUserDTO {
+	
+	private String uuid;
 
     private String firstName;
 
@@ -34,6 +36,7 @@ public class NewUserDTO {
         this.password = password;
         this.biography = biography;
     }
+    
 
     public String getFirstName() {
         return firstName;
@@ -106,4 +109,14 @@ public class NewUserDTO {
     public void setBiography(String biography) {
         this.biography = biography;
     }
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+    
+    
 }
