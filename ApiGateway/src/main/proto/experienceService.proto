@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+import "experienceModel.proto";
+
+service ExperienceGrpcService{
+  rpc add (NewExperienceProto) returns (NewExperienceResponseProto);
+  rpc update (UpdateExperienceProto) returns (UpdateExperienceResponseProto);
+  rpc remove (RemoveExperienceProto) returns (RemoveExperienceResponseProto);
+}
