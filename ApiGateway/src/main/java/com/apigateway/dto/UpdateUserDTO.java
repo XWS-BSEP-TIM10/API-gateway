@@ -1,6 +1,8 @@
 package com.apigateway.dto;
 
-public class NewUserDTO {
+public class UpdateUserDTO {
+	
+	private String uuid;
 
     private String firstName;
 
@@ -20,10 +22,10 @@ public class NewUserDTO {
 
     private String biography;
 
-    public NewUserDTO() {
+    public UpdateUserDTO() {
     }
 
-    public NewUserDTO(String firstName, String lastName, String email, String phoneNumber, String gender, String dateOfBirth, String username, String password, String biography) {
+    public UpdateUserDTO(String firstName, String lastName, String email, String phoneNumber, String gender, String dateOfBirth, String username, String password, String biography) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -34,7 +36,7 @@ public class NewUserDTO {
         this.password = password;
         this.biography = biography;
     }
-
+    
 
     public String getFirstName() {
         return firstName;
@@ -107,4 +109,14 @@ public class NewUserDTO {
     public void setBiography(String biography) {
         this.biography = biography;
     }
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+    
+    
 }
