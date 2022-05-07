@@ -2,6 +2,7 @@ package com.apigateway.controller;
 
 import com.apigateway.dto.LoginDTO;
 import com.apigateway.dto.NewUserDTO;
+import com.apigateway.dto.NewUserResponseDTO;
 import com.apigateway.dto.TokenDTO;
 import com.apigateway.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,14 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<NewUserDTO> addUser(@RequestBody NewUserDTO newUserDTO) {
+    public ResponseEntity<NewUserResponseDTO> addUser(@RequestBody NewUserDTO newUserDTO) {
         NewUserResponseProto response = authService.signUp(newUserDTO);
         if(response.getStatus().equals("Status 400"))
             return ResponseEntity.badRequest().build();
-        return new ResponseEntity<>(newUserDTO, HttpStatus.CREATED);
+        if(response.getStatus().equals("Status 500"))
+            return ResponseEntity.internalServerError().build();
+        NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
+        return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
     }
 
     @PostMapping(value = "/login")
