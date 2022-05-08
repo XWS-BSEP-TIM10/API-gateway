@@ -6,12 +6,12 @@ package proto;
 
 message CreateConnectionRequestProto {
   string initiatorId = 1;
-  string connectingId = 2;
+  string receiverId = 2;
 }
 
 message RespondConnectionRequestProto {
   string initiatorId = 1;
-  string connectingId = 2;
+  string receiverId = 2;
   bool approve = 3;
 }
 

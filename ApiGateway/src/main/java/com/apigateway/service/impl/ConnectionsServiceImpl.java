@@ -16,19 +16,19 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 
 
     @Override
-    public ConnectionResponseProto createConnection(String initiatorId, String connectingId) {
+    public ConnectionResponseProto createConnection(String initiatorId, String receiverId) {
         CreateConnectionRequestProto connectionRequestProto = CreateConnectionRequestProto.newBuilder()
                 .setInitiatorId(initiatorId)
-                .setConnectingId(connectingId)
+                .setReceiverId(receiverId)
                 .build();
         return this.stub.createConnection(connectionRequestProto);
     }
 
     @Override
-    public ConnectionResponseProto respondConnectionRequest(String initiatorId, String connectingId, boolean approve) {
+    public ConnectionResponseProto respondConnectionRequest(String initiatorId, String receiverId, boolean approve) {
         RespondConnectionRequestProto connectionRequestProto = RespondConnectionRequestProto.newBuilder()
                 .setInitiatorId(initiatorId)
-                .setConnectingId(connectingId)
+                .setReceiverId(receiverId)
                 .setApprove(approve)
                 .build();
         return this.stub.respondConnection(connectionRequestProto);
