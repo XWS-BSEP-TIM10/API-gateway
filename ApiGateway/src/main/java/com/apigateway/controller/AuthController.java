@@ -1,9 +1,6 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.LoginDTO;
-import com.apigateway.dto.NewUserDTO;
-import com.apigateway.dto.NewUserResponseDTO;
-import com.apigateway.dto.TokenDTO;
+import com.apigateway.dto.*;
 import com.apigateway.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

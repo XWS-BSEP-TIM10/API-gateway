@@ -1,6 +1,7 @@
 package com.apigateway.service.impl;
 
 import com.apigateway.dto.NewUserDTO;
+import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.service.AuthService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;

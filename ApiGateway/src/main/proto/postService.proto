@@ -10,4 +10,5 @@ service PostGrpcService{
   rpc getUserFeed(UserPostsProto) returns (UserPostsResponseProto);
   rpc addReaction (AddReactionProto) returns (AddReactionResponseProto);
   rpc commentPost(CommentPostProto) returns (CommentPostResponseProto);
+  rpc removeReaction(RemoveReactionProto) returns (RemoveReactionResponseProto);
 }
