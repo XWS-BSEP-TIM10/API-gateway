@@ -68,7 +68,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "posts/{postId}/comment")
+    @PostMapping(value = "posts/{postId}/comment")
     public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String postId, @RequestBody NewCommentDTO dto) {
         CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, dto.getUserId(), dto.getText());
         if (commentPostResponseProto.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
