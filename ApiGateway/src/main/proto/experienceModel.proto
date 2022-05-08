@@ -21,6 +21,7 @@ message NewExperienceResponseProto{
      string description = 5;
      string type = 6;
      string status = 7;
+     string institution = 8;
 }
 
 message UpdateExperienceProto{
@@ -42,6 +43,7 @@ message UpdateExperienceResponseProto{
      string description = 5;
      string type = 6;
      string status = 7;
+     string institution = 8;
 }
 
 message RemoveExperienceProto{
