@@ -1,19 +1,36 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.*;
+import com.apigateway.dto.CommentResponseDTO;
+import com.apigateway.dto.NewCommentDTO;
+import com.apigateway.dto.NewPostRequestDTO;
+import com.apigateway.dto.NewPostResponseDTO;
+import com.apigateway.dto.PostsResponseDTO;
+import com.apigateway.dto.ReactionDTO;
+import com.apigateway.dto.RemoveReactionDTO;
 import com.apigateway.mapper.PostMapper;
 import com.apigateway.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import proto.*;
+import proto.AddPostResponseProto;
+import proto.AddReactionResponseProto;
+import proto.CommentPostResponseProto;
+import proto.PostProto;
+import proto.RemoveReactionResponseProto;
+import proto.UserPostsResponseProto;
 
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -35,17 +52,25 @@ public class PostController {
         return ResponseEntity.ok(newPostResponseDTO);
     }
 
-    @PutMapping(value = "users/{userId}/posts/{postId}/reaction")
-    public ResponseEntity<HttpStatus> addReaction(@PathVariable String userId, @PathVariable String postId, @RequestBody ReactionDTO dto) {
-        AddReactionResponseProto addReactionResponseProto = postService.addReaction(postId, userId, dto.isLike());
+    @PutMapping(value = "posts/{postId}/reaction")
+    public ResponseEntity<HttpStatus> addReaction(@PathVariable String postId, @RequestBody ReactionDTO dto) {
+        AddReactionResponseProto addReactionResponseProto = postService.addReaction(postId, dto.getUserId(), dto.isLike());
         if (addReactionResponseProto.getStatus().equals("Status 400"))
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "users/{userId}/posts/{postId}/comment")
-    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String userId, @PathVariable String postId, @RequestBody NewCommentDTO dto) {
-        CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, userId, dto.getText());
+    @PutMapping(value = "posts/{postId}/remove-reaction")
+    public ResponseEntity<HttpStatus> removeReaction(@PathVariable String postId, @RequestBody RemoveReactionDTO dto) {
+        RemoveReactionResponseProto responseProto = postService.removeReaction(postId, dto.getUserId());
+        if (responseProto.getStatus().equals("Status 404"))
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "posts/{postId}/comment")
+    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String postId, @RequestBody NewCommentDTO dto) {
+        CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, dto.getUserId(), dto.getText());
         if (commentPostResponseProto.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
         CommentResponseDTO commentResponseDTO = new CommentResponseDTO(commentPostResponseProto.getComment());
         return ResponseEntity.ok(commentResponseDTO);
