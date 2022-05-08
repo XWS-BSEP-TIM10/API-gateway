@@ -30,6 +30,7 @@ public class ExperienceDTO {
 	    	this.toDate = proto.getToDate();
 	    	this.description = proto.getDescription();
 	    	this.type = proto.getType();
+	    	this.institution = proto.getInstitution();
 	    }
 	    
 	    public ExperienceDTO(UpdateExperienceResponseProto proto) {
@@ -39,6 +40,7 @@ public class ExperienceDTO {
 	    	this.toDate = proto.getToDate();
 	    	this.description = proto.getDescription();
 	    	this.type = proto.getType();
+	    	this.institution = proto.getInstitution();
 	    }
 	    
 	    public ExperienceDTO(ExperienceProto proto) {
