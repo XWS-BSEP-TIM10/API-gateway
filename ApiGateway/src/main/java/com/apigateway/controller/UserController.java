@@ -42,8 +42,8 @@ private final UserService userService;
 			return ResponseEntity.ok(dto);
 	    }
 	 
-	 @GetMapping("{first_name}/{last_name}")
-	    public ResponseEntity<List<UserDto>> find(@PathVariable String first_name, @PathVariable String last_name) {
+	 @GetMapping
+	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
 		 	FindUserResponseProto response = userService.find(first_name, last_name);
 		 	List<UserDto> users = new ArrayList<>();
 		 	for(UserProto userProto: response.getUsersList()) {
