@@ -120,12 +120,12 @@ public class TokenUtils {
         return username;
     }
 
-    public String getIdFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         String id;
 
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
-            id = claims.get("id", String.class);
+            id = claims.get("userId", String.class);
         } catch (ExpiredJwtException ex) {
             throw ex;
         } catch (Exception e) {

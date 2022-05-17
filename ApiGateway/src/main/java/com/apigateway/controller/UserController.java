@@ -25,10 +25,13 @@ import proto.UserProto;
 public class UserController {
 	
 private final UserService userService;
+
+private final TokenUtils tokenUtils;
 	
 	@Autowired
-	public UserController(UserService userService) {
+	public UserController(UserService userService, TokenUtils tokenUtils) {
 		this.userService = userService;
+		this.tokenUtils = tokenUtils;
 	}
 	
 	 @PutMapping
@@ -42,9 +45,7 @@ private final UserService userService;
 	 
 	 @PreAuthorize("hasRole('ROLE_USER')")
 	 @GetMapping
-	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name,  @RequestHeader(name="Authorization") String token) {
-		 TokenUtils tu = new TokenUtils();
-		 System.out.println(tu.getUsernameFromToken(token));
+	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
 		 	FindUserResponseProto response = userService.find(first_name, last_name);
 		 	List<UserDto> users = new ArrayList<>();
 		 	for(UserProto userProto: response.getUsersList()) {
