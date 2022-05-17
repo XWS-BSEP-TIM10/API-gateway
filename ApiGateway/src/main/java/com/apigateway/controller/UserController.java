@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,6 +43,7 @@ private final UserService userService;
 			return ResponseEntity.ok(dto);
 	    }
 	 
+	 @PreAuthorize("hasRole('ROLE_USER')")
 	 @GetMapping
 	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
 		 	FindUserResponseProto response = userService.find(first_name, last_name);
