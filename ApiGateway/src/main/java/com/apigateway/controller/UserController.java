@@ -33,7 +33,8 @@ private final TokenUtils tokenUtils;
 		this.userService = userService;
 		this.tokenUtils = tokenUtils;
 	}
-	
+	 
+	 @PreAuthorize("hasAuthority('UPDATE_PROFILE_PERMISSION')")
 	 @PutMapping
 	    public ResponseEntity<UpdateUserDTO> update(@RequestBody UpdateUserDTO dto) {
 	        UpdateUserResponseProto response = userService.update(dto);
@@ -43,8 +44,8 @@ private final TokenUtils tokenUtils;
 			return ResponseEntity.ok(dto);
 	    }
 	 
-	 @PreAuthorize("hasRole('ROLE_USER')")
-	 @GetMapping
+
+	 @GetMapping("find")
 	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
 		 	FindUserResponseProto response = userService.find(first_name, last_name);
 		 	List<UserDto> users = new ArrayList<>();

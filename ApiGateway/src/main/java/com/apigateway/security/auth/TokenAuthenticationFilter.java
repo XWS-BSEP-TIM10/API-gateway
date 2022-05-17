@@ -2,6 +2,10 @@ package com.apigateway.security.auth;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,9 +19,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import proto.PermissionProto;
 import proto.RoleProto;
 import proto.UserDetailsResponseProto;
 
+import com.apigateway.model.Permission;
 import com.apigateway.model.Role;
 import com.apigateway.model.User;
 import com.apigateway.security.util.TokenUtils;
@@ -91,7 +97,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	public User getUserDetails(String username) {
 		UserDetailsResponseProto proto= userDetailsGrpcService.getUserDetails(username);
 		RoleProto roleProto = proto.getRole();
-		return new User(proto.getId(),proto.getUsername(),proto.getPassword(),new Role(roleProto.getId(),roleProto.getName()));
+		Set<Permission> permissions = new HashSet<Permission>();
+		for(PermissionProto protoPerm:roleProto.getPermissionsList()) {
+			permissions.add(new Permission(protoPerm.getId(),protoPerm.getName()));
+		}
+		return new User(proto.getId(),proto.getUsername(),proto.getPassword(),new Role(roleProto.getId(),roleProto.getName(), permissions));
 	}
 
 }
