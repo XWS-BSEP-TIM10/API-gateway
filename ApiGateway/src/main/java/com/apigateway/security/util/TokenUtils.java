@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.apigateway.model.User;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
@@ -228,13 +230,13 @@ public class TokenUtils {
      * @param userDetails Informacije o korisniku koji je vlasnik JWT tokena.
      * @return Informacija da li je token validan ili ne.
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, User userDetails) {
         final String username = getUsernameFromToken(token);
         final Date created = getIssuedAtDateFromToken(token);
 
         // Token je validan kada:
         return (username != null // korisnicko ime nije null
-                && username.equals(userDetails.getUsername())); // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
+                && username.equals(userDetails.getId())); // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
         // nakon kreiranja tokena korisnik nije menjao svoju lozinku 
     }
 
