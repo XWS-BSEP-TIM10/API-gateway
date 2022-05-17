@@ -3,6 +3,8 @@ package com.apigateway.security.config;
 import com.apigateway.security.auth.RestAuthenticationEntryPoint;
 import com.apigateway.security.auth.TokenAuthenticationFilter;
 import com.apigateway.security.util.TokenUtils;
+import com.apigateway.service.UserDetailsGrpcService;
+
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +70,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // Injektujemo implementaciju iz TokenUtils klase kako bismo mogli da koristimo njene metode za rad sa JWT u TokenAuthenticationFilteru
     @Autowired
     private TokenUtils tokenUtils;
+    
+    @Autowired
+    private UserDetailsGrpcService userDetailsGrpcService;
 
     // Definisemo prava pristupa za zahteve ka odredjenim URL-ovima/rutama
     @Override
@@ -98,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
 
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
-                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils), BasicAuthenticationFilter.class);
+                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils,userDetailsGrpcService), BasicAuthenticationFilter.class);
 
         // zbog jednostavnosti primera ne koristimo Anti-CSRF token (https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
         http.csrf().disable();
