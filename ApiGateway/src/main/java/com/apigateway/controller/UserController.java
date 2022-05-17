@@ -3,16 +3,13 @@ package com.apigateway.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.apigateway.security.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
@@ -28,12 +25,16 @@ import proto.UserProto;
 public class UserController {
 	
 private final UserService userService;
+
+private final TokenUtils tokenUtils;
 	
 	@Autowired
-	public UserController(UserService userService) {
+	public UserController(UserService userService, TokenUtils tokenUtils) {
 		this.userService = userService;
+		this.tokenUtils = tokenUtils;
 	}
-	
+	 
+	 @PreAuthorize("hasAuthority('UPDATE_PROFILE_PERMISSION')")
 	 @PutMapping
 	    public ResponseEntity<UpdateUserDTO> update(@RequestBody UpdateUserDTO dto) {
 	        UpdateUserResponseProto response = userService.update(dto);
@@ -43,8 +44,8 @@ private final UserService userService;
 			return ResponseEntity.ok(dto);
 	    }
 	 
-	 @PreAuthorize("hasRole('ROLE_USER')")
-	 @GetMapping
+
+	 @GetMapping("find")
 	    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
 		 	FindUserResponseProto response = userService.find(first_name, last_name);
 		 	List<UserDto> users = new ArrayList<>();
