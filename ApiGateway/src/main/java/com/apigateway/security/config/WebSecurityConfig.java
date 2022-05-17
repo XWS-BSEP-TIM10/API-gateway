@@ -3,6 +3,8 @@ package com.apigateway.security.config;
 import com.apigateway.security.auth.RestAuthenticationEntryPoint;
 import com.apigateway.security.auth.TokenAuthenticationFilter;
 import com.apigateway.security.util.TokenUtils;
+import com.apigateway.service.UserDetailsGrpcService;
+
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +70,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // Injektujemo implementaciju iz TokenUtils klase kako bismo mogli da koristimo njene metode za rad sa JWT u TokenAuthenticationFilteru
     @Autowired
     private TokenUtils tokenUtils;
+    
+    @Autowired
+    private UserDetailsGrpcService userDetailsGrpcService;
 
     // Definisemo prava pristupa za zahteve ka odredjenim URL-ovima/rutama
     @Override
@@ -82,10 +87,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
 
                 // svim korisnicima dopusti da pristupe sledecim putanjama:
-                .authorizeRequests().antMatchers("/api/v1/*").permitAll()        // /auth/**
+                .authorizeRequests().antMatchers("/api/v1/auth/*").permitAll()      
+                .antMatchers("/api/v1/profiles/find").permitAll() // /auth/**
                 .antMatchers("/h2-console/**").permitAll()    // /h2-console/** ako se koristi H2 baza)
                 .antMatchers("/api/foo").permitAll()        // /api/foo
-
+                	
                 // ukoliko ne zelimo da koristimo @PreAuthorize anotacije nad metodama kontrolera, moze se iskoristiti hasRole() metoda da se ogranici
                 // koji tip korisnika moze da pristupi odgovarajucoj ruti. Npr. ukoliko zelimo da definisemo da ruti 'admin' moze da pristupi
                 // samo korisnik koji ima rolu 'ADMIN', navodimo na sledeci nacin: 
@@ -98,7 +104,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
 
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
-                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils), BasicAuthenticationFilter.class);
+                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils,userDetailsGrpcService), BasicAuthenticationFilter.class);
 
         // zbog jednostavnosti primera ne koristimo Anti-CSRF token (https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
         http.csrf().disable();
@@ -112,11 +118,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Dozvoljena POST metoda na ruti /auth/login, za svaki drugi tip HTTP metode greska je 401 Unauthorized
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/*");
-        web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/users/*");
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                "/**/*.css", "/**/*.js");
+                "/**/*.css", "/**/*.js","/api/v1/profiles/find");
     }
 
 }

@@ -12,6 +12,7 @@ import com.apigateway.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,8 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-
+    
+    @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
     @PostMapping(value = "posts")
     public ResponseEntity<NewPostResponseDTO> addPost(@RequestPart("post") @Valid NewPostRequestDTO newPostRequestDTO,
                                                       @RequestPart("image") MultipartFile image) throws IOException {
@@ -51,7 +53,8 @@ public class PostController {
         NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
         return ResponseEntity.ok(newPostResponseDTO);
     }
-
+    
+    @PreAuthorize("hasAuthority('REACT_POST_PERMISSION')")
     @PutMapping(value = "posts/{postId}/reaction")
     public ResponseEntity<HttpStatus> addReaction(@PathVariable String postId, @RequestBody ReactionDTO dto) {
         AddReactionResponseProto addReactionResponseProto = postService.addReaction(postId, dto.getUserId(), dto.isLike());
@@ -59,7 +62,8 @@ public class PostController {
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
-
+    
+    @PreAuthorize("hasAuthority('REACT_POST_PERMISSION')")
     @PutMapping(value = "posts/{postId}/remove-reaction")
     public ResponseEntity<HttpStatus> removeReaction(@PathVariable String postId, @RequestBody RemoveReactionDTO dto) {
         RemoveReactionResponseProto responseProto = postService.removeReaction(postId, dto.getUserId());
@@ -67,7 +71,8 @@ public class PostController {
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
-
+    
+    @PreAuthorize("hasAuthority('COMMENT_POST_PERMISSION')")
     @PostMapping(value = "posts/{postId}/comment")
     public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String postId, @RequestBody NewCommentDTO dto) {
         CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, dto.getUserId(), dto.getText());
@@ -75,7 +80,8 @@ public class PostController {
         CommentResponseDTO commentResponseDTO = new CommentResponseDTO(commentPostResponseProto.getComment());
         return ResponseEntity.ok(commentResponseDTO);
     }
-
+    
+    @PreAuthorize("hasAuthority('GET_POST_PERMISSION')")
     @GetMapping(value = "users/{id}/posts")
     public ResponseEntity<List<PostsResponseDTO>> getUserPosts(@PathVariable String id) {
         UserPostsResponseProto posts = postService.getPostsFromUser(id);
@@ -86,7 +92,8 @@ public class PostController {
         }
         return ResponseEntity.ok(responseDTOS);
     }
-
+    
+    @PreAuthorize("hasAuthority('GET_FEED_PERMISSION')")
     @GetMapping(value = "users/{id}/feed")
     public ResponseEntity<List<PostsResponseDTO>> userFeed(@PathVariable String id) {
         UserPostsResponseProto posts = postService.getFeed(id);

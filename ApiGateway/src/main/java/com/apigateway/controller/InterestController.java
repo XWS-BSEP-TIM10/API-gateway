@@ -3,6 +3,7 @@ package com.apigateway.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ private final InterestService interestService;
 		this.interestService = interestService;
 	}
 	
+	@PreAuthorize("hasAuthority('CRUD_INTEREST_PERMISSION')")
 	@PostMapping
     public ResponseEntity<InterestDTO> add(@RequestBody NewInterestDTO dto) {
 		NewInterestResponseProto response = interestService.add(dto);
@@ -36,6 +38,7 @@ private final InterestService interestService;
         return ResponseEntity.ok(new InterestDTO(response));
     }
 	
+	 @PreAuthorize("hasAuthority('CRUD_INTEREST_PERMISSION')")
 	 @DeleteMapping("{id}/user/{userId}")
 	    public ResponseEntity<HttpStatus> remove(@PathVariable Long id, @PathVariable String userId) {
 		 	RemoveInterestResponseProto response = interestService.remove(id, userId);
