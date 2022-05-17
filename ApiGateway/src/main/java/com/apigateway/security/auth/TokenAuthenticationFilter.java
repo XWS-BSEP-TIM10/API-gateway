@@ -10,19 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import proto.RoleProto;
 import proto.UserDetailsResponseProto;
 
-import com.apigateway.dto.UserRoleDto;
 import com.apigateway.model.Role;
 import com.apigateway.model.User;
 import com.apigateway.security.util.TokenUtils;
