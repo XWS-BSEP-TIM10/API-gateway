@@ -5,12 +5,12 @@ import com.apigateway.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import proto.ChangePasswordResponseProto;
 import proto.LoginResponseProto;
 import proto.NewUserResponseProto;
+import proto.VerifyAccountResponseProto;
 
 import javax.validation.Valid;
 
@@ -48,6 +48,36 @@ public class AuthController {
         }
     }
 
+    @GetMapping(value = "/confirm/{token}")
+    public ResponseEntity<?> login(@PathVariable String token) {
 
+        try {
+            VerifyAccountResponseProto response = authService.verifyUserAccount(token);
+            if(response.getStatus().equals("Status 400"))
+                return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok("Account with username:" + response.getUsername() + " successfully activated!");
+        }catch(Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
+
+    @PreAuthorize("hasAuthority('CHANGE_PASSWORD_PERMISSION')")
+    @PutMapping(value = "/changePassword")
+    public ResponseEntity<?> login(@RequestBody ChangePasswordDto changePasswordDto) {
+
+        try {
+            ChangePasswordResponseProto response = authService.changePassword(changePasswordDto.getUserId(), changePasswordDto.getOldPassword(), changePasswordDto.getNewPassword(), changePasswordDto.getRepeatedNewPassword());
+
+            if(response.getStatus().equals("Status 400"))
+                return ResponseEntity.badRequest().body(response.getMessage());
+            if(response.getStatus().equals("Status 418"))
+                return ResponseEntity.badRequest().body(response.getMessage());
+            return ResponseEntity.ok().build();
+        }catch(Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
 
 }
