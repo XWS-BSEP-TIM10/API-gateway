@@ -5,12 +5,10 @@ import com.apigateway.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import proto.LoginResponseProto;
 import proto.NewUserResponseProto;
+import proto.VerifyAccountResponseProto;
 
 import javax.validation.Valid;
 
@@ -48,6 +46,18 @@ public class AuthController {
         }
     }
 
+    @GetMapping(value = "/confirm/{token}")
+    public ResponseEntity<?> login(@PathVariable String token) {
 
+        try {
+            VerifyAccountResponseProto response = authService.verifyUserAccount(token);
+            if(response.getStatus().equals("Status 400"))
+                return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok("Account with username:" + response.getUsername() + " successfully activated!");
+        }catch(Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
 
 }

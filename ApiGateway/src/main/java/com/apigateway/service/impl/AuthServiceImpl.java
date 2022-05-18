@@ -35,4 +35,12 @@ public class AuthServiceImpl implements AuthService {
                 .setPassword(password).build();
         return this.stub.login(loginProto);
     }
+
+    @Override
+    public VerifyAccountResponseProto verifyUserAccount(String verificationToken) {
+        VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
+        return this.stub.verifyUserAccount(verifyAccountProto);
+    }
+
+
 }
