@@ -2,6 +2,7 @@ package com.apigateway.dto;
 
 import proto.CommentProto;
 import proto.PostProto;
+import proto.UserNamesResponseProto;
 
 import javax.xml.stream.events.Comment;
 import java.util.ArrayList;
@@ -11,16 +12,20 @@ public class PostsResponseDTO {
     private String id;
     private String text;
     private String ownerId;
+    private String firstName;
+    private String lastName;
     private List<String> likes;
     private List<String> dislikes;
     private List<CommentDTO> comments;
     private String creationDate;
     private String image;
 
-    public PostsResponseDTO(PostProto post) {
+    public PostsResponseDTO(PostProto post, UserNamesResponseProto names) {
         this.id = post.getPostId();
         this.text = post.getText();
         this.ownerId = post.getOwnerId();
+        this.firstName = names.getFirstName();
+        this.lastName = names.getLastName();
         this.likes = post.getLikesList();
         this.dislikes = post.getDislikesList();
         this.comments = new ArrayList<>();
@@ -42,6 +47,14 @@ public class PostsResponseDTO {
 
     public String getOwnerId() {
         return ownerId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public List<String> getLikes() {

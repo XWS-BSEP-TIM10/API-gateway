@@ -61,3 +61,13 @@ message InterestProto {
 	 int64 id = 1;
    string description = 2;
 }
+
+message UserNamesProto {
+  string id = 1;
+}
+
+message UserNamesResponseProto {
+  string firstName = 1;
+  string lastName = 2;
+  string status = 3;
+}

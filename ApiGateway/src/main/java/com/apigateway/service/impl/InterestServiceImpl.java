@@ -17,12 +17,14 @@ public class InterestServiceImpl implements InterestService{
 	
 	@GrpcClient("profilegrpcservice")
 	private InterestGrpcServiceGrpc.InterestGrpcServiceBlockingStub stub;
-	
+
+	@Override
 	public NewInterestResponseProto add(NewInterestDTO dto) {
 		NewInterestProto newInterestProto = NewInterestProto.newBuilder().setUserId(dto.getUserId()).setDescription(dto.getDescription()).build();
 		return this.stub.add(newInterestProto);
 	}
-	
+
+	@Override
 	public RemoveInterestResponseProto remove(Long id, String userId) {
 		RemoveInterestProto removeInterestProto = RemoveInterestProto.newBuilder().setId(id).setUserId(userId).build();
 		return this.stub.remove(removeInterestProto);
