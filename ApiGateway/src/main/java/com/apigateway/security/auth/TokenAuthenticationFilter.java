@@ -2,6 +2,10 @@ package com.apigateway.security.auth;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,19 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import proto.PermissionProto;
+import proto.RoleProto;
+import proto.UserDetailsResponseProto;
 
-import com.apigateway.dto.UserRoleDto;
+import com.apigateway.model.Permission;
 import com.apigateway.model.Role;
 import com.apigateway.model.User;
 import com.apigateway.security.util.TokenUtils;
+import com.apigateway.service.UserDetailsGrpcService;
 
 // Filter koji ce presretati SVAKI zahtev klijenta ka serveru 
 // (sem nad putanjama navedenim u WebSecurityConfig.configure(WebSecurity web))
@@ -36,10 +41,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 	private UserDetailsService userDetailsService;
 	
+	
+	private final UserDetailsGrpcService userDetailsGrpcService;
+	
 	protected final Log LOGGER = LogFactory.getLog(getClass());
-
-	public TokenAuthenticationFilter(TokenUtils tokenHelper) {
+	
+	public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsGrpcService userDetailsGrpcService) {
 		this.tokenUtils = tokenHelper;
+		this.userDetailsGrpcService = userDetailsGrpcService;
 		
 	}
 
@@ -64,9 +73,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 					
 					// 3. Preuzimanje korisnika na osnovu username-a
 					//UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-					UserRoleDto userRoleDto = getAuthentication(username);
-					System.out.println(userRoleDto.getUsername());
-					User userDetails = new User(userRoleDto.getId(),userRoleDto.getUsername(),userRoleDto.getPassword(),new Role(userRoleDto.getRole().getId(),userRoleDto.getRole().getName()));
+					
+					User userDetails =  getUserDetails(username);
 					// 4. Provera da li je prosledjeni token validan
 					if (tokenUtils.validateToken(authToken, userDetails)) {
 						
@@ -86,16 +94,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 		chain.doFilter(request, response);
 	}
 	
-	public UserRoleDto getAuthentication(String username) {
-	    String url = "http://localhost:8083/api/v1/auth";
-
-	  
-
-	    // build the request
-	    HttpEntity<String> entity = new HttpEntity<>(username);
-	    RestTemplate restTemplate = new RestTemplate();
-	    // send POST request
-	    return  restTemplate.postForObject(url, entity, UserRoleDto.class);
+	public User getUserDetails(String username) {
+		UserDetailsResponseProto proto= userDetailsGrpcService.getUserDetails(username);
+		RoleProto roleProto = proto.getRole();
+		Set<Permission> permissions = new HashSet<Permission>();
+		for(PermissionProto protoPerm:roleProto.getPermissionsList()) {
+			permissions.add(new Permission(protoPerm.getId(),protoPerm.getName()));
+		}
+		return new User(proto.getId(),proto.getUsername(),proto.getPassword(),new Role(roleProto.getId(),roleProto.getName(), permissions));
 	}
 
 }

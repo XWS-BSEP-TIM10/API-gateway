@@ -3,6 +3,7 @@ package com.apigateway.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,7 @@ public class ExperienceController {
 		this.experienceService = experienceService;
 	}
 	
+	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @PostMapping
 	    public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto) {
 	        NewExperienceResponseProto response = experienceService.add(dto);
@@ -40,6 +42,7 @@ public class ExperienceController {
 			return ResponseEntity.ok(new ExperienceDTO(response));
 	    }
 	 
+	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @PutMapping("{id}")
 	    public ResponseEntity<ExperienceDTO> update(@PathVariable Long id, @RequestBody NewExperienceDTO dto) {
 	        UpdateExperienceResponseProto response = experienceService.update(id, dto);
@@ -50,6 +53,7 @@ public class ExperienceController {
 			return ResponseEntity.ok(new ExperienceDTO(response));
 	    }
 	 
+	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @DeleteMapping("{id}")
 	    public ResponseEntity<HttpStatus> remove(@PathVariable Long id) {
 		 	RemoveExperienceResponseProto response= experienceService.remove(id);

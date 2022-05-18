@@ -1,6 +1,11 @@
 package com.apigateway.model;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.security.core.GrantedAuthority;
 
 
@@ -16,12 +21,15 @@ public class Role implements GrantedAuthority {
 
     String name;
     
+    private Set<Permission> permission = new HashSet<Permission>();
+
     
 
-    public Role(Long id, String name) {
+	public Role(Long id, String name, Set<com.apigateway.model.Permission> permission) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.permission = permission;
 	}
 
 	@JsonIgnore
@@ -46,5 +54,15 @@ public class Role implements GrantedAuthority {
     public void setId(Long id) {
         this.id = id;
     }
+
+	public Set<Permission> getPermission() {
+		return permission;
+	}
+
+	public void setPermission(Set<Permission> permission) {
+		this.permission = permission;
+	}
+    
+    
 
 }
