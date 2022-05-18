@@ -35,4 +35,22 @@ public class AuthServiceImpl implements AuthService {
                 .setPassword(password).build();
         return this.stub.login(loginProto);
     }
+
+    @Override
+    public VerifyAccountResponseProto verifyUserAccount(String verificationToken) {
+        VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
+        return this.stub.verifyUserAccount(verifyAccountProto);
+    }
+
+    @Override
+    public ChangePasswordResponseProto changePassword(String userId, String oldPassword, String newPassword, String repeatedNewPassword) {
+        ChangePasswordProto passwordProto = ChangePasswordProto.newBuilder()
+                                            .setUserId(userId)
+                                            .setOldPassword(oldPassword)
+                                            .setNewPassword(newPassword)
+                                            .setRepeatedNewPassword(repeatedNewPassword)
+                                            .build();
+        return this.stub.changePassword(passwordProto);
+    }
+
 }
