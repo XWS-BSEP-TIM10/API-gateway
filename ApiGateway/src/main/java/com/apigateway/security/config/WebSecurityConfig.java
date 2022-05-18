@@ -4,7 +4,6 @@ import com.apigateway.security.auth.RestAuthenticationEntryPoint;
 import com.apigateway.security.auth.TokenAuthenticationFilter;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.UserDetailsGrpcService;
-
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,22 +54,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // Definisemo nacin utvrdjivanja korisnika pri autentifikaciji
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        
-                // Definisemo uputstva AuthenticationManager-u:
 
-                // 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
-                // prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
-                
+        // Definisemo uputstva AuthenticationManager-u:
 
-                // 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu 
-                // da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
-                
+        // 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
+        // prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
+
+
+        // 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu 
+        // da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
+
     }
 
     // Injektujemo implementaciju iz TokenUtils klase kako bismo mogli da koristimo njene metode za rad sa JWT u TokenAuthenticationFilteru
     @Autowired
     private TokenUtils tokenUtils;
-    
+
     @Autowired
     private UserDetailsGrpcService userDetailsGrpcService;
 
@@ -87,11 +86,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
 
                 // svim korisnicima dopusti da pristupe sledecim putanjama:
-                .authorizeRequests().antMatchers("/api/v1/auth/*").permitAll()      
+                .authorizeRequests().antMatchers("/api/v1/auth/*").permitAll()
                 .antMatchers("/api/v1/profiles/find").permitAll() // /auth/**
                 .antMatchers("/h2-console/**").permitAll()    // /h2-console/** ako se koristi H2 baza)
                 .antMatchers("/api/foo").permitAll()        // /api/foo
-                	
+                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/v3/api-docs/**").permitAll()
+
                 // ukoliko ne zelimo da koristimo @PreAuthorize anotacije nad metodama kontrolera, moze se iskoristiti hasRole() metoda da se ogranici
                 // koji tip korisnika moze da pristupi odgovarajucoj ruti. Npr. ukoliko zelimo da definisemo da ruti 'admin' moze da pristupi
                 // samo korisnik koji ima rolu 'ADMIN', navodimo na sledeci nacin: 
@@ -104,7 +105,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
 
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
-                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils,userDetailsGrpcService), BasicAuthenticationFilter.class);
+                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsGrpcService), BasicAuthenticationFilter.class);
 
         // zbog jednostavnosti primera ne koristimo Anti-CSRF token (https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
         http.csrf().disable();
@@ -121,7 +122,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                "/**/*.css", "/**/*.js","/api/v1/profiles/find");
+                "/**/*.css", "/**/*.js", "/api/v1/profiles/find");
     }
 
 }
