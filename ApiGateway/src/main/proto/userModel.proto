@@ -71,3 +71,19 @@ message UserNamesResponseProto {
   string lastName = 2;
   string status = 3;
 }
+
+message EmailProto{
+  string id = 1;
+}
+message EmailResponseProto{
+  string email = 1;
+  string status = 2;
+}
+
+message IdProto{
+  string email = 1;
+}
+message IdResponseProto{
+  string id = 1;
+  string status = 2;
+}

@@ -33,4 +33,15 @@ public class UserServiceImpl implements UserService{
 		return this.stub.getFirstAndLastName(userNamesResponseProto);
 	}
 
+	@Override
+	public EmailResponseProto getEmail(String id) {
+		EmailProto emailProto = EmailProto.newBuilder().setId(id).build();
+		return this.stub.getEmail(emailProto);
+	}
+
+	@Override
+	public IdResponseProto getId(String email) {
+		IdProto idProto = IdProto.newBuilder().setEmail(email).build();
+		return this.stub.getId(idProto);
+	}
 }

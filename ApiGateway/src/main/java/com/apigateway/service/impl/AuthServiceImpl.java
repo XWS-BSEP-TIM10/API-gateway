@@ -52,4 +52,20 @@ public class AuthServiceImpl implements AuthService {
         return this.stub.changePassword(passwordProto);
     }
 
+    @Override
+    public RecoverResponseProto recoverAccount(String id, String email) {
+        RecoverProto recoverProto = RecoverProto.newBuilder().setId(id).setEmail(email).build();
+        return this.stub.recoverAccount(recoverProto);
+    }
+
+    @Override
+    public RecoveryPasswordResponseProto changePasswordRecovery(String newPassword, String repeatedNewPassword, String token) {
+        RecoveryPasswordProto recoveryPasswordProto = RecoveryPasswordProto.newBuilder()
+                .setPassword(newPassword)
+                .setRepeatedPassword(repeatedNewPassword)
+                .setToken(token)
+                .build();
+        return this.stub.changePasswordRecovery(recoveryPasswordProto);
+    }
+
 }

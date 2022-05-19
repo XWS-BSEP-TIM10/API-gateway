@@ -1,12 +1,13 @@
 package com.apigateway.service;
 
 import com.apigateway.dto.NewUserDTO;
-import proto.ChangePasswordResponseProto;
-import proto.LoginResponseProto;
-import proto.NewUserResponseProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 public interface AuthService {
+
+    RecoverResponseProto recoverAccount(String id, String email);
+
+    RecoveryPasswordResponseProto changePasswordRecovery(String newPassword, String repeatedNewPassword, String token);
 
     NewUserResponseProto signUp(NewUserDTO newUserDTO);
 
