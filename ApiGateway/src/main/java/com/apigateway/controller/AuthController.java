@@ -84,7 +84,7 @@ public class AuthController {
 
         String id = userService.getId(email).getId();
         if (id != null) {
-            RecoverResponseProto recoverProto = authService.recoverAccount(id, email);
+            SendTokenResponseProto recoverProto = authService.recoverAccount(id, email);
             if(recoverProto.getStatus().equals("Status 200"))
                 return ResponseEntity.ok().build();
             return ResponseEntity.notFound().build();
@@ -105,6 +105,31 @@ public class AuthController {
         }else{
             return ResponseEntity.ok().build();
         }
+    }
+    
+    @GetMapping(value = "/passwordless")
+    public ResponseEntity<?> passwordlessToken(String email) {
+
+        String id = userService.getId(email).getId();
+        if (id != null) {
+            SendTokenResponseProto recoverProto = authService.generateTokenPasswordless(id, email);
+            if(recoverProto.getStatus().equals("Status 200"))
+                return ResponseEntity.ok().build();
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.notFound().build();
+
+    }
+    
+    @GetMapping(value = "/login/passwordless/{token}")
+    public ResponseEntity<?> passwordlessLogin(@PathVariable String token) {
+
+    	LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
+        if(loginResponseProto.getStatus().equals("Status 400")){
+            return ResponseEntity.badRequest().body("Token expired");
+        }
+        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt()));
+
     }
 
 }

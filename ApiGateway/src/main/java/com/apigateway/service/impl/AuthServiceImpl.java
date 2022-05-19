@@ -53,9 +53,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public RecoverResponseProto recoverAccount(String id, String email) {
-        RecoverProto recoverProto = RecoverProto.newBuilder().setId(id).setEmail(email).build();
-        return this.stub.recoverAccount(recoverProto);
+    public SendTokenResponseProto recoverAccount(String id, String email) {
+        SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
+        return this.stub.recoverAccount(sendTokenProto);
     }
 
     @Override
@@ -66,6 +66,18 @@ public class AuthServiceImpl implements AuthService {
                 .setToken(token)
                 .build();
         return this.stub.changePasswordRecovery(recoveryPasswordProto);
+    }
+    
+    @Override
+    public SendTokenResponseProto generateTokenPasswordless(String id, String email) {
+        SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
+        return this.stub.generateTokenPasswordless(sendTokenProto);
+    }
+    
+    @Override
+    public LoginResponseProto passwordlessLogin(String verificationToken) {
+        VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
+        return this.stub.passwordlessLogin(verifyAccountProto);
     }
 
 }

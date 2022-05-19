@@ -5,7 +5,7 @@ import proto.*;
 
 public interface AuthService {
 
-    RecoverResponseProto recoverAccount(String id, String email);
+    SendTokenResponseProto recoverAccount(String id, String email);
 
     RecoveryPasswordResponseProto changePasswordRecovery(String newPassword, String repeatedNewPassword, String token);
 
@@ -16,4 +16,8 @@ public interface AuthService {
     VerifyAccountResponseProto verifyUserAccount(String verificationToken);
 
     ChangePasswordResponseProto changePassword(String userId, String oldPassword, String newPassword, String repeatedNewPassword);
+    
+    SendTokenResponseProto generateTokenPasswordless(String id, String email);
+    
+    LoginResponseProto passwordlessLogin(String verificationToken);
 }
