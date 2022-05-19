@@ -15,12 +15,12 @@ public class UserDetailsGrpcServiceImpl implements UserDetailsGrpcService{
 	@GrpcClient("authgrpcservice")
     private UserDetailsGrpcServiceGrpc.UserDetailsGrpcServiceBlockingStub stub;
 	
-		@Override
-	    public UserDetailsResponseProto getUserDetails(String username) {
-	        UserDetailsProto userDetailsProto = UserDetailsProto.newBuilder()
-	                .setUsername(username)
-	                .build();
-	        return this.stub.getUserDetails(userDetailsProto);
-	    }
+	@Override
+	public UserDetailsResponseProto getUserDetails(String username) {
+		UserDetailsProto userDetailsProto = UserDetailsProto.newBuilder()
+	                										.setUsername(username)
+	               											.build();
+		return this.stub.getUserDetails(userDetailsProto);
+	}
 
 }

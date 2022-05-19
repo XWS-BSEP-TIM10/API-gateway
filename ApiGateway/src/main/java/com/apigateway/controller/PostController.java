@@ -1,14 +1,9 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.CommentResponseDTO;
-import com.apigateway.dto.NewCommentDTO;
-import com.apigateway.dto.NewPostRequestDTO;
-import com.apigateway.dto.NewPostResponseDTO;
-import com.apigateway.dto.PostsResponseDTO;
-import com.apigateway.dto.ReactionDTO;
-import com.apigateway.dto.RemoveReactionDTO;
+import com.apigateway.dto.*;
 import com.apigateway.mapper.PostMapper;
 import com.apigateway.service.PostService;
+import com.apigateway.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import proto.AddPostResponseProto;
-import proto.AddReactionResponseProto;
-import proto.CommentPostResponseProto;
-import proto.PostProto;
-import proto.RemoveReactionResponseProto;
-import proto.UserPostsResponseProto;
+import proto.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -39,10 +29,12 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
 
     @Autowired
-    public PostController(PostService postService) {
+    public PostController(PostService postService, UserService userService) {
         this.postService = postService;
+        this.userService = userService;
     }
     
     @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
@@ -87,7 +79,12 @@ public class PostController {
         UserPostsResponseProto posts = postService.getPostsFromUser(id);
         List<PostsResponseDTO> responseDTOS = new ArrayList<>();
         for (PostProto post : posts.getPostsList()) {
-            PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post);
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(post.getOwnerId());
+            PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post, userNamesResponseProto);
+            for(CommentProto comment : post.getCommentsList()){
+                userNamesResponseProto = userService.getFirstAndLastName(comment.getUserId());
+                postsResponseDTO.getComments().add(new CommentDTO(comment, userNamesResponseProto));
+            }
             responseDTOS.add(postsResponseDTO);
         }
         return ResponseEntity.ok(responseDTOS);
@@ -98,10 +95,17 @@ public class PostController {
     public ResponseEntity<List<PostsResponseDTO>> userFeed(@PathVariable String id) {
         UserPostsResponseProto posts = postService.getFeed(id);
         List<PostsResponseDTO> responseDTOS = new ArrayList<>();
+        UserNamesResponseProto userNamesResponseProto;
         for (PostProto post : posts.getPostsList()) {
-            PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post);
+            userNamesResponseProto = userService.getFirstAndLastName(post.getOwnerId());
+            PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post, userNamesResponseProto);
+            for(CommentProto comment : post.getCommentsList()){
+                userNamesResponseProto = userService.getFirstAndLastName(comment.getUserId());
+                postsResponseDTO.getComments().add(new CommentDTO(comment, userNamesResponseProto));
+            }
             responseDTOS.add(postsResponseDTO);
         }
+
         return ResponseEntity.ok(responseDTOS);
 
     }
