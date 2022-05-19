@@ -1,16 +1,15 @@
 package com.apigateway.controller;
 
 import com.apigateway.dto.ConnectionRequestDTO;
+import com.apigateway.dto.ConnectionStatusDto;
 import com.apigateway.service.ConnectionsService;
+import com.google.api.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import proto.ConnectionResponseProto;
+import proto.ConnectionStatusResponseProto;
 
 import javax.validation.Valid;
 
@@ -51,6 +50,13 @@ public class ConnectionsController {
         if (responseProto == null || responseProto.getStatus().equals("Status 404"))
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasAuthority('GET_CONNECTION_STATUS_PERMISSION')")
+    @GetMapping("connections/status")
+    public ResponseEntity<ConnectionStatusDto> getConnectionStatus(@RequestBody ConnectionRequestDTO dto) {
+        ConnectionStatusResponseProto responseProto = connectionsService.getConnectionStatus(dto.getInitiatorId(), dto.getReceiverId());
+        return ResponseEntity.ok(new ConnectionStatusDto(responseProto.getConnectionStatus()));
     }
 
 }

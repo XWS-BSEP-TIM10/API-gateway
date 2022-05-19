@@ -68,8 +68,9 @@ public class PostController {
     @PostMapping(value = "posts/{postId}/comment")
     public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String postId, @RequestBody NewCommentDTO dto) {
         CommentPostResponseProto commentPostResponseProto = postService.addComment(postId, dto.getUserId(), dto.getText());
+        UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(dto.getUserId());
         if (commentPostResponseProto.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
-        CommentResponseDTO commentResponseDTO = new CommentResponseDTO(commentPostResponseProto.getComment());
+        CommentResponseDTO commentResponseDTO = new CommentResponseDTO(commentPostResponseProto.getComment(), userNamesResponseProto);
         return ResponseEntity.ok(commentResponseDTO);
     }
     
