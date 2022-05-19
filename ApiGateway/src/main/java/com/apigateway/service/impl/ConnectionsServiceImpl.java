@@ -2,10 +2,11 @@ package com.apigateway.service.impl;
 
 import com.apigateway.service.ConnectionsService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import proto.*;
 
-@Service
+@Component
 public class ConnectionsServiceImpl implements ConnectionsService {
 
     @GrpcClient("connectionsservice")

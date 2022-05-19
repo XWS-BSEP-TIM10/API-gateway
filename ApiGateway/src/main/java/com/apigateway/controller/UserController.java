@@ -13,6 +13,7 @@ import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
 import com.apigateway.service.UserService;
 
+import proto.EmailResponseProto;
 import proto.FindUserResponseProto;
 import proto.UpdateUserResponseProto;
 import proto.UserProto;

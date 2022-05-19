@@ -3,8 +3,7 @@ package com.apigateway.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 
 public class User implements UserDetails {
@@ -19,19 +18,19 @@ public class User implements UserDetails {
     private String password;
 
  
-    private Role role;
+    private List<Role> roles;
 
 
     public User() {
     }
 
 
-    public User(String uuid, String username, String password, Role userType) {
+    public User(String uuid, String username, String password, List<Role> userType) {
         super();
         this.id = uuid;
         this.username = username;
         this.password = password;
-        this.role = userType;
+        this.roles = userType;
     }
 
     public String getId() {
@@ -58,8 +57,8 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public List<Role> getRoles() {
+        return roles;
     }
 
     @Override
@@ -84,6 +83,12 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-    	 return this.role.getPermission();
+        Set<Permission> permissions = new HashSet<Permission>();
+        for(Role role : this.roles){
+            for(Permission permission : role.getPermission()){
+                permissions.add(permission);
+            }
+        }
+        return permissions;
     }
 }

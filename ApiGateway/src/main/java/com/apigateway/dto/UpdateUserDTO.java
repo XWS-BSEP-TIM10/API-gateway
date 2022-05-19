@@ -18,14 +18,13 @@ public class UpdateUserDTO {
 
     private String username;
 
-    private String password;
 
     private String biography;
 
     public UpdateUserDTO() {
     }
 
-    public UpdateUserDTO(String firstName, String lastName, String email, String phoneNumber, String gender, String dateOfBirth, String username, String password, String biography) {
+    public UpdateUserDTO(String firstName, String lastName, String email, String phoneNumber, String gender, String dateOfBirth, String username, String biography) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -33,7 +32,6 @@ public class UpdateUserDTO {
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.username = username;
-        this.password = password;
         this.biography = biography;
     }
     
@@ -94,13 +92,6 @@ public class UpdateUserDTO {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public String getBiography() {
         return biography;

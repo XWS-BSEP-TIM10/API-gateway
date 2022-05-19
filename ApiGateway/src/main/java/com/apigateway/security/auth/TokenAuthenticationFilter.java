@@ -96,12 +96,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	
 	public User getUserDetails(String username) {
 		UserDetailsResponseProto proto= userDetailsGrpcService.getUserDetails(username);
-		RoleProto roleProto = proto.getRole();
-		Set<Permission> permissions = new HashSet<Permission>();
-		for(PermissionProto protoPerm:roleProto.getPermissionsList()) {
-			permissions.add(new Permission(protoPerm.getId(),protoPerm.getName()));
+		return new User(proto.getId(),proto.getUsername(),proto.getPassword(), getRoles(proto));
+	}
+
+	private List<Role> getRoles(UserDetailsResponseProto proto) {
+		List<Role> roles = new ArrayList<Role>();
+		for(RoleProto roleProto : proto.getRoleList()){
+			Set<Permission> permissions = new HashSet<Permission>();
+			for(PermissionProto permProto : roleProto.getPermissionsList()){
+				permissions.add(new Permission(permProto.getId(), permProto.getName()));
+			}
+			Role role = new Role(roleProto.getId(), roleProto.getName(), permissions);
+			roles.add(role);
 		}
-		return new User(proto.getId(),proto.getUsername(),proto.getPassword(),new Role(roleProto.getId(),roleProto.getName(), permissions));
+		return roles;
 	}
 
 }

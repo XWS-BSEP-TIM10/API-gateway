@@ -12,8 +12,7 @@ message UpdateUserProto{
     string gender = 6;
     string dateOfBirth = 7;
     string username = 8;
-    string password = 9;
-    string biography = 10;
+    string biography = 9;
 }
 
 message UpdateUserResponseProto{
@@ -70,4 +69,20 @@ message UserNamesResponseProto {
   string firstName = 1;
   string lastName = 2;
   string status = 3;
+}
+
+message EmailProto{
+  string id = 1;
+}
+message EmailResponseProto{
+  string email = 1;
+  string status = 2;
+}
+
+message IdProto{
+  string email = 1;
+}
+message IdResponseProto{
+  string id = 1;
+  string status = 2;
 }

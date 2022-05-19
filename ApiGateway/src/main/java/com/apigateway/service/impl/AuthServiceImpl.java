@@ -52,4 +52,32 @@ public class AuthServiceImpl implements AuthService {
         return this.stub.changePassword(passwordProto);
     }
 
+    @Override
+    public SendTokenResponseProto recoverAccount(String id, String email) {
+        SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
+        return this.stub.recoverAccount(sendTokenProto);
+    }
+
+    @Override
+    public RecoveryPasswordResponseProto changePasswordRecovery(String newPassword, String repeatedNewPassword, String token) {
+        RecoveryPasswordProto recoveryPasswordProto = RecoveryPasswordProto.newBuilder()
+                .setPassword(newPassword)
+                .setRepeatedPassword(repeatedNewPassword)
+                .setToken(token)
+                .build();
+        return this.stub.changePasswordRecovery(recoveryPasswordProto);
+    }
+    
+    @Override
+    public SendTokenResponseProto generateTokenPasswordless(String id, String email) {
+        SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
+        return this.stub.generateTokenPasswordless(sendTokenProto);
+    }
+    
+    @Override
+    public LoginResponseProto passwordlessLogin(String verificationToken) {
+        VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
+        return this.stub.passwordlessLogin(verifyAccountProto);
+    }
+
 }

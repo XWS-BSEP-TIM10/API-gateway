@@ -8,4 +8,6 @@ service UserGrpcService{
   rpc update (UpdateUserProto) returns (UpdateUserResponseProto);
   rpc find (FindUserProto) returns (FindUserResponseProto);
   rpc getFirstAndLastName (UserNamesProto) returns (UserNamesResponseProto);
+  rpc getEmail(EmailProto) returns (EmailResponseProto);
+  rpc getId(IdProto) returns (IdResponseProto);
 }
