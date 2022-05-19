@@ -1,16 +1,16 @@
 package com.apigateway.controller;
 
 import com.apigateway.dto.*;
+import com.apigateway.model.User;
 import com.apigateway.service.AuthService;
+import com.apigateway.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import proto.ChangePasswordResponseProto;
-import proto.LoginResponseProto;
-import proto.NewUserResponseProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 import javax.validation.Valid;
 
@@ -19,10 +19,12 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UserService userService) {
         this.authService = authService;
+        this.userService = userService;
     }
 
     @PostMapping("/signup")
@@ -65,10 +67,8 @@ public class AuthController {
     @PreAuthorize("hasAuthority('CHANGE_PASSWORD_PERMISSION')")
     @PutMapping(value = "/changePassword")
     public ResponseEntity<?> login(@RequestBody ChangePasswordDto changePasswordDto) {
-
         try {
             ChangePasswordResponseProto response = authService.changePassword(changePasswordDto.getUserId(), changePasswordDto.getOldPassword(), changePasswordDto.getNewPassword(), changePasswordDto.getRepeatedNewPassword());
-
             if(response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().body(response.getMessage());
             if(response.getStatus().equals("Status 418"))
@@ -77,6 +77,58 @@ public class AuthController {
         }catch(Exception ex){
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping(value = "/recover")
+    public ResponseEntity<?> recoverAccount(String email) {
+
+        String id = userService.getId(email).getId();
+        if (id != null) {
+            SendTokenResponseProto recoverProto = authService.recoverAccount(id, email);
+            if(recoverProto.getStatus().equals("Status 200"))
+                return ResponseEntity.ok().build();
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.notFound().build();
+
+    }
+
+    @PutMapping(value = "/recover/changePassword/{token}")
+    public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto) {
+
+
+        RecoveryPasswordResponseProto recoveryPasswordResponseProto = authService.changePasswordRecovery(passwordDto.getNewPassword(), passwordDto.getRepeatedNewPassword(), token);
+        if(recoveryPasswordResponseProto.getStatus().equals("Status 418")){
+            return ResponseEntity.badRequest().body("Token expired");
+        }else if(recoveryPasswordResponseProto.getStatus().equals("Status 400")){
+            return ResponseEntity.badRequest().body("Passwords not matching");
+        }else{
+            return ResponseEntity.ok().build();
+        }
+    }
+    
+    @GetMapping(value = "/passwordless")
+    public ResponseEntity<?> passwordlessToken(String email) {
+
+        String id = userService.getId(email).getId();
+        if (id != null) {
+            SendTokenResponseProto recoverProto = authService.generateTokenPasswordless(id, email);
+            if(recoverProto.getStatus().equals("Status 200"))
+                return ResponseEntity.ok().build();
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.notFound().build();
+
+    }
+    
+    @GetMapping(value = "/login/passwordless/{token}")
+    public ResponseEntity<?> passwordlessLogin(@PathVariable String token) {
+
+    	LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
+        if(loginResponseProto.getStatus().equals("Status 400")){
+            return ResponseEntity.badRequest().body("Token expired");
+        }
+        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt()));
 
     }
 
