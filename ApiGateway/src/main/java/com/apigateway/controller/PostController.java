@@ -1,12 +1,6 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.CommentResponseDTO;
-import com.apigateway.dto.NewCommentDTO;
-import com.apigateway.dto.NewPostRequestDTO;
-import com.apigateway.dto.NewPostResponseDTO;
-import com.apigateway.dto.PostsResponseDTO;
-import com.apigateway.dto.ReactionDTO;
-import com.apigateway.dto.RemoveReactionDTO;
+import com.apigateway.dto.*;
 import com.apigateway.mapper.PostMapper;
 import com.apigateway.service.PostService;
 import com.apigateway.service.UserService;
@@ -87,6 +81,10 @@ public class PostController {
         for (PostProto post : posts.getPostsList()) {
             UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(post.getOwnerId());
             PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post, userNamesResponseProto);
+            for(CommentProto comment : post.getCommentsList()){
+                userNamesResponseProto = userService.getFirstAndLastName(comment.getUserId());
+                postsResponseDTO.getComments().add(new CommentDTO(comment, userNamesResponseProto));
+            }
             responseDTOS.add(postsResponseDTO);
         }
         return ResponseEntity.ok(responseDTOS);
@@ -97,11 +95,17 @@ public class PostController {
     public ResponseEntity<List<PostsResponseDTO>> userFeed(@PathVariable String id) {
         UserPostsResponseProto posts = postService.getFeed(id);
         List<PostsResponseDTO> responseDTOS = new ArrayList<>();
+        UserNamesResponseProto userNamesResponseProto;
         for (PostProto post : posts.getPostsList()) {
-            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(post.getOwnerId());
+            userNamesResponseProto = userService.getFirstAndLastName(post.getOwnerId());
             PostsResponseDTO postsResponseDTO = PostMapper.toDTO(post, userNamesResponseProto);
+            for(CommentProto comment : post.getCommentsList()){
+                userNamesResponseProto = userService.getFirstAndLastName(comment.getUserId());
+                postsResponseDTO.getComments().add(new CommentDTO(comment, userNamesResponseProto));
+            }
             responseDTOS.add(postsResponseDTO);
         }
+
         return ResponseEntity.ok(responseDTOS);
 
     }

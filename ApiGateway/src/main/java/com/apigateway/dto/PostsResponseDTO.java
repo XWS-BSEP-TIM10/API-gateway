@@ -29,9 +29,6 @@ public class PostsResponseDTO {
         this.likes = post.getLikesList();
         this.dislikes = post.getDislikesList();
         this.comments = new ArrayList<>();
-        for(CommentProto comment : post.getCommentsList()){
-            this.comments.add(new CommentDTO(comment.getText(), comment.getUserId()));
-        }
         this.creationDate = post.getCreationDate();
         this.image = post.getImage();
     }
