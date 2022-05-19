@@ -7,4 +7,5 @@ import "connectionsModel.proto";
 service ConnectionsGrpcService{
   rpc createConnection (CreateConnectionRequestProto) returns (ConnectionResponseProto);
   rpc respondConnection (RespondConnectionRequestProto) returns (ConnectionResponseProto);
+  rpc getConnectionStatus(ConnectionStatusProto) returns (ConnectionStatusResponseProto);
 }

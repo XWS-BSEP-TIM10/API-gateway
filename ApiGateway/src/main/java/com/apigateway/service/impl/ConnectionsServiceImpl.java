@@ -3,10 +3,7 @@ package com.apigateway.service.impl;
 import com.apigateway.service.ConnectionsService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import proto.ConnectionResponseProto;
-import proto.ConnectionsGrpcServiceGrpc;
-import proto.CreateConnectionRequestProto;
-import proto.RespondConnectionRequestProto;
+import proto.*;
 
 @Service
 public class ConnectionsServiceImpl implements ConnectionsService {
@@ -32,5 +29,14 @@ public class ConnectionsServiceImpl implements ConnectionsService {
                 .setApprove(approve)
                 .build();
         return this.stub.respondConnection(connectionRequestProto);
+    }
+
+    @Override
+    public ConnectionStatusResponseProto getConnectionStatus(String initiatorId, String receiverId) {
+        ConnectionStatusProto connectionStatusProto = ConnectionStatusProto.newBuilder()
+                .setInitiatorId(initiatorId)
+                .setReceiverId(receiverId)
+                .build();
+        return this.stub.getConnectionStatus(connectionStatusProto);
     }
 }

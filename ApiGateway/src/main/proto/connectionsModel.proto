@@ -18,3 +18,13 @@ message RespondConnectionRequestProto {
 message ConnectionResponseProto {
   string status = 1;
 }
+
+message ConnectionStatusProto {
+  string initiatorId = 1;
+  string receiverId = 2;
+}
+
+message ConnectionStatusResponseProto {
+  string connectionStatus = 1;
+  string status = 2;
+}
