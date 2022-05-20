@@ -82,7 +82,17 @@ message EmailResponseProto{
 message IdProto{
   string email = 1;
 }
+
 message IdResponseProto{
   string id = 1;
+  string status = 2;
+}
+
+message UserIdProto{
+  string id = 1;
+}
+
+message UserResponseProto{
+  UserProto user = 1;
   string status = 2;
 }

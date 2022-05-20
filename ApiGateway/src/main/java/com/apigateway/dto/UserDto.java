@@ -37,7 +37,7 @@ public class UserDto {
 			
 		}
 	    
-		public UserDto(UserProto  userProto) {
+		public UserDto(UserProto userProto) {
 			this.id = userProto.getUuid();
 			this.firstName = userProto.getFirstName();
 			this.lastName = userProto.getLastName();

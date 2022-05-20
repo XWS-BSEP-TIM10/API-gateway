@@ -44,4 +44,10 @@ public class UserServiceImpl implements UserService{
 		IdProto idProto = IdProto.newBuilder().setEmail(email).build();
 		return this.stub.getId(idProto);
 	}
+
+	@Override
+	public UserResponseProto getById(String id) {
+		UserIdProto idProto = UserIdProto.newBuilder().setId(id).build();
+		return this.stub.getById(idProto);
+	}
 }

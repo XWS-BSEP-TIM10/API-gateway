@@ -13,10 +13,10 @@ import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
 import com.apigateway.service.UserService;
 
-import proto.EmailResponseProto;
 import proto.FindUserResponseProto;
 import proto.UpdateUserResponseProto;
 import proto.UserProto;
+import proto.UserResponseProto;
 
 
 @RestController
@@ -46,9 +46,19 @@ public class UserController {
 		FindUserResponseProto response = userService.find(first_name, last_name);
 		List<UserDto> users = new ArrayList<>();
 		for(UserProto userProto: response.getUsersList()) {
-			UserDto dto= new UserDto(userProto);
+			UserDto dto = new UserDto(userProto);
 		 	users.add(dto);
 		}
 		return ResponseEntity.ok(users);
+	}
+
+	@GetMapping("{id}")
+	public ResponseEntity<UserDto> getProfile(@PathVariable String id) {
+		UserResponseProto response = userService.getById(id);
+		if(response.getStatus().equals("Status 404"))
+			return ResponseEntity.notFound().build();
+
+		UserDto dto = new UserDto(response.getUser());
+		return ResponseEntity.ok(dto);
 	}
 }

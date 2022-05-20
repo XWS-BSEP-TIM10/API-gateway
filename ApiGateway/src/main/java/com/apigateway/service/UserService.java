@@ -15,4 +15,6 @@ public interface UserService {
 	EmailResponseProto getEmail(String id);
 
 	IdResponseProto getId(String email);
+
+	UserResponseProto getById(String id);
 }
