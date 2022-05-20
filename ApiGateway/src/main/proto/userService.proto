@@ -10,4 +10,5 @@ service UserGrpcService{
   rpc getFirstAndLastName (UserNamesProto) returns (UserNamesResponseProto);
   rpc getEmail(EmailProto) returns (EmailResponseProto);
   rpc getId(IdProto) returns (IdResponseProto);
+  rpc getById(UserIdProto) returns (UserResponseProto);
 }
