@@ -79,5 +79,11 @@ public class AuthServiceImpl implements AuthService {
         VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
         return this.stub.passwordlessLogin(verifyAccountProto);
     }
+    
+    @Override
+    public LoginResponseProto refreshToken(String refreshToken) {
+    	RefreshTokenProto refreshTokenProto = RefreshTokenProto.newBuilder().setToken(refreshToken).build();
+        return this.stub.refreshToken(refreshTokenProto);
+    }
 
 }

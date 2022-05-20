@@ -20,4 +20,6 @@ public interface AuthService {
     SendTokenResponseProto generateTokenPasswordless(String id, String email);
     
     LoginResponseProto passwordlessLogin(String verificationToken);
+    
+    LoginResponseProto refreshToken(String refreshToken);
 }

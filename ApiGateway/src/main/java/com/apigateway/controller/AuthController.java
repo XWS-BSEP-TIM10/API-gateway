@@ -44,7 +44,7 @@ public class AuthController {
             LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword());
             if(response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
-            return ResponseEntity.ok(new TokenDTO(response.getJwt()));
+            return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
         }catch(Exception ex){
             return ResponseEntity.badRequest().build();
         }
@@ -128,7 +128,14 @@ public class AuthController {
         if(loginResponseProto.getStatus().equals("Status 400")){
             return ResponseEntity.badRequest().body("Token expired");
         }
-        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt()));
+        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(),loginResponseProto.getRefreshToken()));
+
+    }
+    
+    @GetMapping("/refreshToken")
+    public ResponseEntity<TokenDTO> refreshToken(@RequestHeader("Authorization") String token) {
+    	LoginResponseProto response = authService.refreshToken(token);
+        return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
 
     }
 
