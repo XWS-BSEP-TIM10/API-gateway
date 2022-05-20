@@ -4,6 +4,8 @@ import com.apigateway.security.auth.RestAuthenticationEntryPoint;
 import com.apigateway.security.auth.TokenAuthenticationFilter;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.UserDetailsGrpcService;
+import com.sun.net.httpserver.Filter;
+
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,12 +105,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // za development svrhe ukljuci konfiguraciju za CORS iz WebConfig klase
                 .cors().and()
-
+                
+                .addFilterBefore(new XSSFilter(),  BasicAuthenticationFilter.class)
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
                 .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsGrpcService), BasicAuthenticationFilter.class);
 
         // zbog jednostavnosti primera ne koristimo Anti-CSRF token (https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
         http.csrf().disable();
+        
+        http
+        .headers()
+        .xssProtection()
+        .and()
+        .contentSecurityPolicy("script-src 'self'");
     }
 
     // Definisanje konfiguracije koja utice na generalnu bezbednost aplikacije
