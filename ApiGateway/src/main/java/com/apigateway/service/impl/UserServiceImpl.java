@@ -1,5 +1,7 @@
 package com.apigateway.service.impl;
 
+import com.apigateway.security.util.TokenUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.apigateway.dto.UpdateUserDTO;
@@ -13,6 +15,9 @@ public class UserServiceImpl implements UserService{
 	
 	@GrpcClient("profilegrpcservice")
 	private UserGrpcServiceGrpc.UserGrpcServiceBlockingStub stub;
+
+	@Autowired
+	private TokenUtils tokenUtils;
 
 	@Override
 	public UpdateUserResponseProto update(UpdateUserDTO dto) {
@@ -49,5 +54,10 @@ public class UserServiceImpl implements UserService{
 	public UserResponseProto getById(String id) {
 		UserIdProto idProto = UserIdProto.newBuilder().setId(id).build();
 		return this.stub.getById(idProto);
+	}
+
+	@Override
+	public String getIdByToken(String token) {
+		return tokenUtils.getUsernameFromToken(token);
 	}
 }
