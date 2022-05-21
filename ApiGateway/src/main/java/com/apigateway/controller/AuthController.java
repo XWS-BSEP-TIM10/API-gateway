@@ -9,10 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import proto.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -28,14 +32,29 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<NewUserResponseDTO> addUser(@RequestBody NewUserDTO newUserDTO) {
+    public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO) {
         NewUserResponseProto response = authService.signUp(newUserDTO);
         if(response.getStatus().equals("Status 400"))
             return ResponseEntity.badRequest().build();
+        if(response.getStatus().equals("Status 409"))
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         if(response.getStatus().equals("Status 500"))
             return ResponseEntity.internalServerError().build();
         NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
         return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 
     @PostMapping(value = "/login")
@@ -44,7 +63,7 @@ public class AuthController {
             LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword());
             if(response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
-            return ResponseEntity.ok(new TokenDTO(response.getJwt()));
+            return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
         }catch(Exception ex){
             return ResponseEntity.badRequest().build();
         }
@@ -128,7 +147,14 @@ public class AuthController {
         if(loginResponseProto.getStatus().equals("Status 400")){
             return ResponseEntity.badRequest().body("Token expired");
         }
-        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt()));
+        return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(),loginResponseProto.getRefreshToken()));
+
+    }
+    
+    @GetMapping("/refreshToken")
+    public ResponseEntity<TokenDTO> refreshToken(@RequestHeader("Authorization") String token) {
+    	LoginResponseProto response = authService.refreshToken(token);
+        return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
 
     }
 

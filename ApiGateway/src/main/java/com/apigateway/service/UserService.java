@@ -17,4 +17,6 @@ public interface UserService {
 	IdResponseProto getId(String email);
 
 	UserResponseProto getById(String id);
+
+	String getIdByToken(String token);
 }

@@ -1,22 +1,44 @@
 package com.apigateway.dto;
 
+import com.apigateway.validator.FieldMatch;
+import com.apigateway.validator.ValidPassword;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+@FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match")
 public class NewUserDTO {
 
+    @NotBlank(message = "First name is mandatory")
     private String firstName;
 
+    @NotBlank(message = "Last name is mandatory")
     private String lastName;
 
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email is not valid")
     private String email;
 
+    @NotBlank(message = "Phone number is mandatory")
+    @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Phone number could start with + and must be 8-15 Digits Long.")
     private String phoneNumber;
 
+    @NotBlank(message = "Gender is mandatory")
     private String gender;
 
+    @NotBlank(message = "Date of birth is mandatory")
     private String dateOfBirth;
 
+    @NotBlank(message = "Username is mandatory")
     private String username;
 
+    @NotBlank(message = "Password is mandatory")
+    @ValidPassword
     private String password;
+
+    @NotBlank
+    private String confirmPassword;
 
     private String biography;
 
@@ -98,6 +120,14 @@ public class NewUserDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     public String getBiography() {

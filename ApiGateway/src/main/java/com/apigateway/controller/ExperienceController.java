@@ -34,6 +34,7 @@ public class ExperienceController {
 	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @PostMapping
 	    public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto) {
+			if(dto.getToDate().isEmpty()) dto.setToDate("Present");
 	        NewExperienceResponseProto response = experienceService.add(dto);
 			if(response.getStatus().equals("Status 404"))
 			    return ResponseEntity.notFound().build();
@@ -45,6 +46,7 @@ public class ExperienceController {
 	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @PutMapping("{id}")
 	    public ResponseEntity<ExperienceDTO> update(@PathVariable Long id, @RequestBody NewExperienceDTO dto) {
+		 	if(dto.getToDate().isEmpty()) dto.setToDate("Present");
 	        UpdateExperienceResponseProto response = experienceService.update(id, dto);
 			if (response.getStatus().equals("Status 404"))
 			    return ResponseEntity.notFound().build();
