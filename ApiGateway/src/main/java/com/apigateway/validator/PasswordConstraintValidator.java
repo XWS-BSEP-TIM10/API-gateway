@@ -1,4 +1,4 @@
-package com.apigateway.validators;
+package com.apigateway.validator;
 
 import org.passay.*;
 
