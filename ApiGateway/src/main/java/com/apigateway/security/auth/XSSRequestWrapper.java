@@ -17,7 +17,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 		super(servletRequest);
 	}
 
-	@Override
+	/*@Override
 	public String[] getParameterValues(String parameter) {
 		String[] values = super.getParameterValues(parameter);
 
@@ -32,7 +32,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 		}
 
 		return encodedValues;
-	}
+	} */
 
 	private String replaceXSSCharacters(String value) {
 		if (value == null) {
