@@ -1,21 +1,37 @@
 package com.apigateway.dto;
 
+import com.apigateway.validators.ValidPassword;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 public class NewUserDTO {
 
+    @NotBlank(message = "First name is mandatory")
     private String firstName;
 
+    @NotBlank(message = "Last name is mandatory")
     private String lastName;
 
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email is not valid")
     private String email;
 
+    @NotBlank(message = "Phone number is mandatory")
+    @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Phone number could start with + and must be 8-15 Digits Long.")
     private String phoneNumber;
 
     private String gender;
 
+    @NotBlank(message = "Date of birth is mandatory")
     private String dateOfBirth;
 
+    @NotBlank(message = "Username is mandatory")
     private String username;
 
+    @NotBlank(message = "Password is mandatory")
+    @ValidPassword
     private String password;
 
     private String biography;
