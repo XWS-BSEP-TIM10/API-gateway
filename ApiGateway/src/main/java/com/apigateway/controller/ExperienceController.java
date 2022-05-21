@@ -34,6 +34,7 @@ public class ExperienceController {
 	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
 	 @PostMapping
 	    public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto) {
+			if(dto.getToDate().isEmpty()) dto.setToDate("Present");
 	        NewExperienceResponseProto response = experienceService.add(dto);
 			if(response.getStatus().equals("Status 404"))
 			    return ResponseEntity.notFound().build();
