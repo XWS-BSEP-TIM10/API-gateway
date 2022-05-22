@@ -158,5 +158,17 @@ public class AuthController {
         return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
 
     }
+    
+    @GetMapping("/checkToken/{token}")
+    public ResponseEntity<?> checkToken(@PathVariable String token) {
+    	SendTokenResponseProto response = authService.checkToken(token);
+    	if(response.getStatus().equals("Status 404")){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
+
+       
+
+    }
 
 }

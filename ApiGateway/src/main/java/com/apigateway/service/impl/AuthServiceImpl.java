@@ -85,5 +85,11 @@ public class AuthServiceImpl implements AuthService {
     	RefreshTokenProto refreshTokenProto = RefreshTokenProto.newBuilder().setToken(refreshToken).build();
         return this.stub.refreshToken(refreshTokenProto);
     }
+    
+    @Override
+    public SendTokenResponseProto checkToken(String checkToken) {
+    	TokenProto tokenProto = TokenProto.newBuilder().setToken(checkToken).build();
+        return this.stub.checkToken(tokenProto);
+    }
 
 }
