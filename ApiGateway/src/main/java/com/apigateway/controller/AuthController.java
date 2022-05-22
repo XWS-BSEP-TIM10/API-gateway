@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import proto.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,13 +71,13 @@ public class AuthController {
     }
 
     @GetMapping(value = "/confirm/{token}")
-    public ResponseEntity<?> login(@PathVariable String token) {
+    public ResponseEntity<?> confirmToken(@PathVariable String token) {
 
         try {
             VerifyAccountResponseProto response = authService.verifyUserAccount(token);
             if(response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
-            return ResponseEntity.ok("Account with username:" + response.getUsername() + " successfully activated!");
+            return ResponseEntity.ok().build();
         }catch(Exception ex){
             return ResponseEntity.badRequest().build();
         }
@@ -99,7 +100,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/recover")
-    public ResponseEntity<?> recoverAccount(String email) {
+    public ResponseEntity<?> recoverAccount(@Email String email) {
 
         String id = userService.getId(email).getId();
         if (id != null) {
@@ -155,6 +156,18 @@ public class AuthController {
     public ResponseEntity<TokenDTO> refreshToken(@RequestHeader("Authorization") String token) {
     	LoginResponseProto response = authService.refreshToken(token);
         return ResponseEntity.ok(new TokenDTO(response.getJwt(),response.getRefreshToken()));
+
+    }
+    
+    @GetMapping("/checkToken/{token}")
+    public ResponseEntity<?> checkToken(@PathVariable String token) {
+    	SendTokenResponseProto response = authService.checkToken(token);
+    	if(response.getStatus().equals("Status 404")){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
+
+       
 
     }
 

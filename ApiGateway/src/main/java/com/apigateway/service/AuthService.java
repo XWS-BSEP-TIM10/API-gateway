@@ -22,4 +22,6 @@ public interface AuthService {
     LoginResponseProto passwordlessLogin(String verificationToken);
     
     LoginResponseProto refreshToken(String refreshToken);
+    
+    SendTokenResponseProto checkToken(String checkToken);
 }
