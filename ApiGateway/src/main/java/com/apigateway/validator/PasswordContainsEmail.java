@@ -12,20 +12,20 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = FieldMatchValidator.class)
+@Constraint(validatedBy = PasswordContainsEmailValidator.class)
 @Documented
-public @interface FieldMatch {
-    String message() default "The fields must match";
+public @interface PasswordContainsEmail {
+    String message() default "The password can not contain username";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-    String first();
-    String second();
+    String password();
+    String email();
 
     @Target({TYPE, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Documented
     @interface List
     {
-        FieldMatch[] value();
+        PasswordContainsUsername[] value();
     }
 }
