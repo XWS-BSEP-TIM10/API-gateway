@@ -34,6 +34,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO) {
+        newUserDTO.setId(userService.getId(newUserDTO.getEmail()).getId());
+
         NewUserResponseProto response = authService.signUp(newUserDTO);
         if(response.getStatus().equals("Status 400"))
             return ResponseEntity.badRequest().build();

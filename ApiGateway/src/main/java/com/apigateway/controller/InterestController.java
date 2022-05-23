@@ -29,7 +29,7 @@ private final InterestService interestService;
 		this.interestService = interestService;
 	}
 	
-	@PreAuthorize("hasAuthority('CRUD_INTEREST_PERMISSION')")
+	@PreAuthorize("hasAuthority('CREATE_INTEREST_PERMISSION')")
 	@PostMapping
     public ResponseEntity<InterestDTO> add(@RequestBody NewInterestDTO dto) {
 		NewInterestResponseProto response = interestService.add(dto);
@@ -38,7 +38,7 @@ private final InterestService interestService;
         return ResponseEntity.ok(new InterestDTO(response));
     }
 	
-	 @PreAuthorize("hasAuthority('CRUD_INTEREST_PERMISSION')")
+	 @PreAuthorize("hasAuthority('DELETE_INTEREST_PERMISSION')")
 	 @DeleteMapping("{id}/user/{userId}")
 	    public ResponseEntity<HttpStatus> remove(@PathVariable Long id, @PathVariable String userId) {
 		 	RemoveInterestResponseProto response = interestService.remove(id, userId);

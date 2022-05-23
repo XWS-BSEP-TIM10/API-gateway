@@ -23,7 +23,7 @@ public class ConnectionsController {
         this.connectionsService = connectionsService;
     }
     
-    @PreAuthorize("hasAuthority('CONNECT_PERMISSION')")
+    @PreAuthorize("hasAuthority('CREATE_CONNECTION_PERMISSION')")
     @PostMapping(value = "connections")
     public ResponseEntity<HttpStatus> connect(@RequestBody @Valid ConnectionRequestDTO newConnectionRequestDTO) {
         ConnectionResponseProto connectionResponseProto = connectionsService.createConnection(newConnectionRequestDTO.getInitiatorId(), newConnectionRequestDTO.getReceiverId());
@@ -53,9 +53,9 @@ public class ConnectionsController {
     }
 
     @PreAuthorize("hasAuthority('GET_CONNECTION_STATUS_PERMISSION')")
-    @GetMapping("connections/status")
-    public ResponseEntity<ConnectionStatusDto> getConnectionStatus(@RequestBody ConnectionRequestDTO dto) {
-        ConnectionStatusResponseProto responseProto = connectionsService.getConnectionStatus(dto.getInitiatorId(), dto.getReceiverId());
+    @GetMapping("connections/status/{initiatorId}/{receiverId}")
+    public ResponseEntity<ConnectionStatusDto> getConnectionStatus(@PathVariable String initiatorId, @PathVariable String receiverId) {
+        ConnectionStatusResponseProto responseProto = connectionsService.getConnectionStatus(initiatorId, receiverId);
         return ResponseEntity.ok(new ConnectionStatusDto(responseProto.getConnectionStatus()));
     }
 

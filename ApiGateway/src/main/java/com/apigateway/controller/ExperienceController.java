@@ -31,7 +31,7 @@ public class ExperienceController {
 		this.experienceService = experienceService;
 	}
 	
-	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
+	 @PreAuthorize("hasAuthority('CREATE_EXPERIENCE_PERMISSION')")
 	 @PostMapping
 	    public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto) {
 			if(dto.getToDate().isEmpty()) dto.setToDate("Present");
@@ -43,7 +43,7 @@ public class ExperienceController {
 			return ResponseEntity.ok(new ExperienceDTO(response));
 	    }
 	 
-	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
+	 @PreAuthorize("hasAuthority('UPDATE_EXPERIENCE_PERMISSION')")
 	 @PutMapping("{id}")
 	    public ResponseEntity<ExperienceDTO> update(@PathVariable Long id, @RequestBody NewExperienceDTO dto) {
 		 	if(dto.getToDate().isEmpty()) dto.setToDate("Present");
@@ -55,7 +55,7 @@ public class ExperienceController {
 			return ResponseEntity.ok(new ExperienceDTO(response));
 	    }
 	 
-	 @PreAuthorize("hasAuthority('CRUD_EXPERIENCE_PERMISSION')")
+	 @PreAuthorize("hasAuthority('DELETE_EXPERIENCE_PERMISSION')")
 	 @DeleteMapping("{id}")
 	    public ResponseEntity<HttpStatus> remove(@PathVariable Long id) {
 		 	RemoveExperienceResponseProto response= experienceService.remove(id);
