@@ -15,6 +15,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public NewUserResponseProto signUp(NewUserDTO newUserDTO) {
         NewUserProto newUserProto = NewUserProto.newBuilder()
+                .setId(newUserDTO.getId())
                 .setFirstName(newUserDTO.getFirstName())
                 .setLastName(newUserDTO.getLastName())
                 .setEmail(newUserDTO.getEmail())

@@ -10,6 +10,8 @@ import javax.validation.constraints.Pattern;
 @FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match")
 public class NewUserDTO {
 
+    private String id;
+
     @NotBlank(message = "First name is mandatory")
     private String firstName;
 
@@ -136,5 +138,13 @@ public class NewUserDTO {
 
     public void setBiography(String biography) {
         this.biography = biography;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
