@@ -23,7 +23,7 @@ public class ConnectionsController {
         this.connectionsService = connectionsService;
     }
     
-    @PreAuthorize("hasAuthority('CONNECT_PERMISSION')")
+    @PreAuthorize("hasAuthority('CREATE_CONNECTION_PERMISSION')")
     @PostMapping(value = "connections")
     public ResponseEntity<HttpStatus> connect(@RequestBody @Valid ConnectionRequestDTO newConnectionRequestDTO) {
         ConnectionResponseProto connectionResponseProto = connectionsService.createConnection(newConnectionRequestDTO.getInitiatorId(), newConnectionRequestDTO.getReceiverId());
