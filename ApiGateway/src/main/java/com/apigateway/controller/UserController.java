@@ -73,4 +73,10 @@ public class UserController {
 		UserDto dto = new UserDto(response.getUser());
 		return ResponseEntity.ok(dto);
 	}
+
+	@PreAuthorize("hasAuthority('ADMIN_PERMISSION')")
+	@GetMapping
+	public ResponseEntity<?> admin() {
+		return ResponseEntity.ok().build();
+	}
 }
