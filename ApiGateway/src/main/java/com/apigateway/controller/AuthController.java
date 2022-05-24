@@ -33,14 +33,16 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO) {
+    public ResponseEntity<?> addUser(@Valid @RequestBody NewUserDTO newUserDTO) {
         newUserDTO.setId(userService.getId(newUserDTO.getEmail()).getId());
 
         NewUserResponseProto response = authService.signUp(newUserDTO);
         if(response.getStatus().equals("Status 400"))
             return ResponseEntity.badRequest().build();
         if(response.getStatus().equals("Status 409"))
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+        if(response.getStatus().equals("Status 418"))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         if(response.getStatus().equals("Status 500"))
             return ResponseEntity.internalServerError().build();
         NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);

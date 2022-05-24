@@ -1,13 +1,14 @@
 package com.apigateway.dto;
 
-import com.apigateway.validator.FieldMatch;
-import com.apigateway.validator.ValidPassword;
+import com.apigateway.validator.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match")
+@PasswordContainsUsername(password = "password", username = "username", message = "The password can not contain username")
+@PasswordContainsEmail(password = "password", email = "email", message = "The password can not contain email")
 public class NewUserDTO {
 
     private String id;
@@ -37,6 +38,7 @@ public class NewUserDTO {
 
     @NotBlank(message = "Password is mandatory")
     @ValidPassword
+    @BlackList
     private String password;
 
     @NotBlank
