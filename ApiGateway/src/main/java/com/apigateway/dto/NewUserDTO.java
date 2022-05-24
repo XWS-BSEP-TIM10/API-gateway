@@ -1,9 +1,6 @@
 package com.apigateway.dto;
 
-import com.apigateway.validator.FieldMatch;
-import com.apigateway.validator.PasswordContainsEmail;
-import com.apigateway.validator.PasswordContainsUsername;
-import com.apigateway.validator.ValidPassword;
+import com.apigateway.validator.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -41,6 +38,7 @@ public class NewUserDTO {
 
     @NotBlank(message = "Password is mandatory")
     @ValidPassword
+    @BlackList
     private String password;
 
     @NotBlank
