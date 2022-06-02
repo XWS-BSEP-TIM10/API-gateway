@@ -1,22 +1,28 @@
 package com.apigateway.service;
 
 import com.apigateway.dto.UpdateUserDTO;
-
-import proto.*;
+import proto.EmailResponseProto;
+import proto.FindUserResponseProto;
+import proto.IdResponseProto;
+import proto.UpdateUserResponseProto;
+import proto.UserNamesResponseProto;
+import proto.UserResponseProto;
 
 public interface UserService {
 
-	UpdateUserResponseProto update(UpdateUserDTO dto);
-	
-	FindUserResponseProto find(String firstName, String lastName);
+    UpdateUserResponseProto update(UpdateUserDTO dto);
 
-	UserNamesResponseProto getFirstAndLastName(String id);
+    FindUserResponseProto find(String firstName, String lastName);
 
-	EmailResponseProto getEmail(String id);
+    UserNamesResponseProto getFirstAndLastName(String id);
 
-	IdResponseProto getId(String email);
+    EmailResponseProto getEmail(String id);
 
-	UserResponseProto getById(String id);
+    IdResponseProto getId(String email);
 
-	String getIdByToken(String token);
+    UserResponseProto getById(String id);
+
+    String getIdByToken(String token);
+
+    String getUserIdByToken(String token);
 }

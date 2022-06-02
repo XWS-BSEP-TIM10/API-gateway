@@ -4,7 +4,23 @@ import com.apigateway.dto.NewUserDTO;
 import com.apigateway.service.AuthService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.*;
+import proto.APITokenProto;
+import proto.APITokenResponseProto;
+import proto.AuthGrpcServiceGrpc;
+import proto.ChangePasswordProto;
+import proto.ChangePasswordResponseProto;
+import proto.LoginProto;
+import proto.LoginResponseProto;
+import proto.NewUserProto;
+import proto.NewUserResponseProto;
+import proto.RecoveryPasswordProto;
+import proto.RecoveryPasswordResponseProto;
+import proto.RefreshTokenProto;
+import proto.SendTokenProto;
+import proto.SendTokenResponseProto;
+import proto.TokenProto;
+import proto.VerifyAccountProto;
+import proto.VerifyAccountResponseProto;
 
 @Component
 public class AuthServiceImpl implements AuthService {
@@ -45,11 +61,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ChangePasswordResponseProto changePassword(String userId, String oldPassword, String newPassword, String repeatedNewPassword) {
         ChangePasswordProto passwordProto = ChangePasswordProto.newBuilder()
-                                            .setUserId(userId)
-                                            .setOldPassword(oldPassword)
-                                            .setNewPassword(newPassword)
-                                            .setRepeatedNewPassword(repeatedNewPassword)
-                                            .build();
+                .setUserId(userId)
+                .setOldPassword(oldPassword)
+                .setNewPassword(newPassword)
+                .setRepeatedNewPassword(repeatedNewPassword)
+                .build();
         return this.stub.changePassword(passwordProto);
     }
 
@@ -68,29 +84,35 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         return this.stub.changePasswordRecovery(recoveryPasswordProto);
     }
-    
+
     @Override
     public SendTokenResponseProto generateTokenPasswordless(String id, String email) {
         SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
         return this.stub.generateTokenPasswordless(sendTokenProto);
     }
-    
+
     @Override
     public LoginResponseProto passwordlessLogin(String verificationToken) {
         VerifyAccountProto verifyAccountProto = VerifyAccountProto.newBuilder().setVerificationToken(verificationToken).build();
         return this.stub.passwordlessLogin(verifyAccountProto);
     }
-    
+
     @Override
     public LoginResponseProto refreshToken(String refreshToken) {
-    	RefreshTokenProto refreshTokenProto = RefreshTokenProto.newBuilder().setToken(refreshToken).build();
+        RefreshTokenProto refreshTokenProto = RefreshTokenProto.newBuilder().setToken(refreshToken).build();
         return this.stub.refreshToken(refreshTokenProto);
     }
-    
+
     @Override
     public SendTokenResponseProto checkToken(String checkToken) {
-    	TokenProto tokenProto = TokenProto.newBuilder().setToken(checkToken).build();
+        TokenProto tokenProto = TokenProto.newBuilder().setToken(checkToken).build();
         return this.stub.checkToken(tokenProto);
+    }
+
+    @Override
+    public APITokenResponseProto generateAPIToken(String userId) {
+        APITokenProto apiTokenProto = APITokenProto.newBuilder().setUserId(userId).build();
+        return this.stub.generateAPIToken(apiTokenProto);
     }
 
 }
