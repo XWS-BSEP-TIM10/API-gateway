@@ -1,15 +1,13 @@
 package com.apigateway.security.util;
 
 
+import com.apigateway.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import com.apigateway.model.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -33,6 +31,9 @@ public class TokenUtils {
     // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
     @Value("Authorization")
     private String AUTH_HEADER;
+
+    @Value("DislinktAuth")
+    private String DISLINKT_AUTH_HEADER;
 
     // Moguce je generisati JWT za razlicite klijente (npr. web i mobilni klijenti nece imati isto trajanje JWT, 
     // JWT za mobilne klijente ce trajati duze jer se mozda aplikacija redje koristi na taj nacin)
@@ -101,6 +102,15 @@ public class TokenUtils {
         return null;
     }
 
+
+    public String getAPIToken(HttpServletRequest request) {
+        String authHeader = getDislinktAuthHeader(request);
+        if (authHeader != null) {
+            return authHeader;
+        }
+        return null;
+    }
+
     /**
      * Funkcija za preuzimanje vlasnika tokena (korisničko ime).
      *
@@ -124,7 +134,6 @@ public class TokenUtils {
 
     public String getUserIdFromToken(String token) {
         String id;
-
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
             id = claims.get("userId", String.class);
@@ -133,7 +142,6 @@ public class TokenUtils {
         } catch (Exception e) {
             id = null;
         }
-
         return id;
     }
 
@@ -272,4 +280,7 @@ public class TokenUtils {
         return request.getHeader(AUTH_HEADER);
     }
 
+    public String getDislinktAuthHeader(HttpServletRequest request) {
+        return request.getHeader(DISLINKT_AUTH_HEADER);
+    }
 }

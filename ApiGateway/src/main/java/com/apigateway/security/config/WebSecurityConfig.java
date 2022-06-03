@@ -4,8 +4,6 @@ import com.apigateway.security.auth.RestAuthenticationEntryPoint;
 import com.apigateway.security.auth.TokenAuthenticationFilter;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.UserDetailsGrpcService;
-import com.sun.net.httpserver.Filter;
-
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,19 +103,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // za development svrhe ukljuci konfiguraciju za CORS iz WebConfig klase
                 .cors().and()
-                
-                .addFilterBefore(new XSSFilter(),  BasicAuthenticationFilter.class)
+
+                .addFilterBefore(new XSSFilter(), BasicAuthenticationFilter.class)
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
                 .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsGrpcService), BasicAuthenticationFilter.class);
 
         // zbog jednostavnosti primera ne koristimo Anti-CSRF token (https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
         http.csrf().disable();
-        
+
         http
-        .headers()
-        .xssProtection()
-        .and()
-        .contentSecurityPolicy("script-src 'self'");
+                .headers()
+                .xssProtection()
+                .and()
+                .contentSecurityPolicy("script-src 'self'");
     }
 
     // Definisanje konfiguracije koja utice na generalnu bezbednost aplikacije
@@ -127,12 +125,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Zahtevi koji se mecuju za web.ignoring().antMatchers() nemaju pristup SecurityContext-u
 
         // Dozvoljena POST metoda na ruti /auth/login, za svaki drugi tip HTTP metode greska je 401 Unauthorized
-        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/*");
+        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/login");
+        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/signup");
         web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/auth/recover/changePassword/*");
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                "/**/*.css", "/**/*.js","/api/v1/profiles/find", "/api/v1/auth/confirm/*", "/api/v1/auth/recover/*", "/api/v1/auth/login/passwordless/*", "/api/v1/auth/checkToken/*");
+                "/**/*.css", "/**/*.js", "/api/v1/profiles/find", "/api/v1/auth/confirm/*", "/api/v1/auth/recover/*", "/api/v1/auth/login/passwordless/*", "/api/v1/auth/checkToken/*");
 
     }
 
