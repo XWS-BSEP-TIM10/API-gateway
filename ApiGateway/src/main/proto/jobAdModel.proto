@@ -18,9 +18,10 @@ message JobAdResponseProto {
   string title = 3;
   string position = 4;
   string description = 5;
-  string company = 6;
-  repeated string requirements = 7;
-  string status = 8;
+  string creationDate = 6;
+  string company = 7;
+  repeated string requirements = 8;
+  string status = 9;
 }
 
 message UserJobAdProto {
@@ -30,8 +31,9 @@ message UserJobAdProto {
   string title = 4;
   string position = 5;
   string description = 6;
-  string company = 7;
-  repeated string requirements = 8;
+  string creationDate = 7;
+  string company = 8;
+  repeated string requirements = 9;
 }
 
 message GetJobAdsRequestProto {

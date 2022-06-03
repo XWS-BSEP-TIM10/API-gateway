@@ -18,6 +18,8 @@ public class JobAdDTO {
 
     private String description;
 
+    private String creationDate;
+
     private String company;
 
     private List<String> requirements;
@@ -25,13 +27,14 @@ public class JobAdDTO {
     public JobAdDTO() {
     }
 
-    public JobAdDTO(String userId, String firstName, String lastName, String title, String position, String description, String company, List<String> requirements) {
+    public JobAdDTO(String userId, String firstName, String lastName, String title, String position, String description, String creationDate, String company, List<String> requirements) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.title = title;
         this.position = position;
         this.description = description;
+        this.creationDate = creationDate;
         this.company = company;
         this.requirements = requirements;
     }
@@ -43,6 +46,7 @@ public class JobAdDTO {
         this.title = jobAd.getTitle();
         this.position = jobAd.getPosition();
         this.description = jobAd.getDescription();
+        this.creationDate = jobAd.getCreationDate();
         this.company = jobAd.getCompany();
         this.requirements = jobAd.getRequirementsList();
     }
@@ -69,6 +73,10 @@ public class JobAdDTO {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
     }
 
     public String getCompany() {
