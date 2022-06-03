@@ -22,7 +22,7 @@ import proto.RemoveInterestResponseProto;
 @RequestMapping(value = "/api/v1/interests")
 public class InterestController {
 	
-private final InterestService interestService;
+	private final InterestService interestService;
 	
 	@Autowired
 	public InterestController(InterestService interestService) {
