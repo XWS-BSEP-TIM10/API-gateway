@@ -22,3 +22,23 @@ message JobAdResponseProto {
   repeated string requirements = 7;
   string status = 8;
 }
+
+message UserJobAdProto {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string title = 4;
+  string position = 5;
+  string description = 6;
+  string company = 7;
+  repeated string requirements = 8;
+}
+
+message GetJobAdsRequestProto {
+  string userId = 1;
+}
+
+message GetJobAdsResponseProto {
+  repeated UserJobAdProto jobAds = 1;
+  string status = 2;
+}
