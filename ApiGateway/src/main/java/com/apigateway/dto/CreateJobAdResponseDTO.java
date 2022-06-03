@@ -1,5 +1,6 @@
 package com.apigateway.dto;
 
+import proto.JobAdProto;
 import proto.JobAdResponseProto;
 
 import java.util.List;
