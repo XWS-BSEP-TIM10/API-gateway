@@ -26,4 +26,10 @@ public class JobAdServiceImpl implements JobAdService {
         GetJobAdsRequestProto request = GetJobAdsRequestProto.newBuilder().setUserId(userId).build();
         return this.stub.getUserJobAds(request);
     }
+
+    @Override
+    public GetJobAdsResponseProto getJobAds(String search) {
+        SearchJobAdsProto request = SearchJobAdsProto.newBuilder().setSearchParam(search).build();
+        return this.stub.getJobAds(request);
+    }
 }
