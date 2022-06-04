@@ -57,4 +57,16 @@ public class JobAdController {
         }
         return ResponseEntity.ok(jobAds);
     }
+
+    @PreAuthorize("hasAuthority('GET_JOB_ADS')")
+    @GetMapping("job-ads")
+    public ResponseEntity<List<JobAdDTO>> getJobAds(@RequestParam String search) {
+        GetJobAdsResponseProto response = jobAdService.getJobAds(search);
+        List<JobAdDTO> jobAds = new ArrayList<>();
+        for(UserJobAdProto jobAd : response.getJobAdsList()){
+            JobAdDTO jobAdDto = new JobAdDTO(jobAd);
+            jobAds.add(jobAdDto);
+        }
+        return ResponseEntity.ok(jobAds);
+    }
 }

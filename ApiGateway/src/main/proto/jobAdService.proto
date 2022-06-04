@@ -7,4 +7,5 @@ import "jobAdModel.proto";
 service JobAdGrpcService{
   rpc addNewJobAd (JobAdProto) returns (JobAdResponseProto);
   rpc getUserJobAds (GetJobAdsRequestProto) returns (GetJobAdsResponseProto);
+  rpc getJobAds (SearchJobAdsProto) returns (GetJobAdsResponseProto);
 }
