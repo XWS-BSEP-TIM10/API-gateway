@@ -15,6 +15,8 @@ public class CreateJobAdResponseDTO {
 
     private String description;
 
+    private String creationDate;
+
     private String company;
 
     private List<String> requirements;
@@ -24,6 +26,7 @@ public class CreateJobAdResponseDTO {
         this.title = jobAd.getTitle();
         this.position = jobAd.getPosition();
         this.description = jobAd.getDescription();
+        this.creationDate = jobAd.getCreationDate();
         this.company = jobAd.getCompany();
         this.requirements = jobAd.getRequirementsList();
     }
@@ -38,6 +41,10 @@ public class CreateJobAdResponseDTO {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
     }
 
     public String getCompany() {
