@@ -130,7 +130,7 @@ public class AuthController {
     public ResponseEntity<?> recoverAccount(@Email String email) {
 
         String id = userService.getId(email).getId();
-        if (id != null) {
+        if (!id.equals("")) {
             SendTokenResponseProto recoverProto = authService.recoverAccount(id, email);
             if (recoverProto.getStatus().equals("Status 200"))
                 return ResponseEntity.ok().build();
