@@ -5,11 +5,19 @@ import com.apigateway.dto.CreateJobAdResponseDTO;
 import com.apigateway.dto.JobAdDTO;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.JobAdService;
+import com.apigateway.service.LoggerService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import proto.GetJobAdsResponseProto;
 import proto.JobAdResponseProto;
 import proto.UserJobAdProto;
@@ -27,7 +35,7 @@ public class JobAdController {
 
     private final TokenUtils tokenUtils;
 
-    private final LoggerServiceImpl loggerService;
+    private final LoggerService loggerService;
 
     public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils) {
         this.jobAdService = jobAdService;
@@ -42,11 +50,11 @@ public class JobAdController {
                                                        @Valid @RequestBody CreateJobAdRequestDTO createDto, HttpServletRequest request) {
         try {
             String userId;
-            if(agentToken != null) userId = tokenUtils.getUserIdFromToken(agentToken);
+            if (agentToken != null) userId = tokenUtils.getUserIdFromToken(agentToken);
             else userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));
             JobAdResponseProto response = jobAdService.add(createDto, userId);
-            if(response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
-            if(response.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
+            if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
+            if (response.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
             return ResponseEntity.ok(new CreateJobAdResponseDTO(response));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -59,10 +67,10 @@ public class JobAdController {
     public ResponseEntity<List<JobAdDTO>> getUserJobAds(@PathVariable String userId, HttpServletRequest request) {
         try {
             GetJobAdsResponseProto response = jobAdService.getUserJobAds(userId);
-            if(response.getStatus().equals("Status 404"))
+            if (response.getStatus().equals("Status 404"))
                 return ResponseEntity.notFound().build();
             List<JobAdDTO> jobAds = new ArrayList<>();
-            for(UserJobAdProto jobAd : response.getJobAdsList()){
+            for (UserJobAdProto jobAd : response.getJobAdsList()) {
                 JobAdDTO jobAdDto = new JobAdDTO(jobAd);
                 jobAds.add(jobAdDto);
             }

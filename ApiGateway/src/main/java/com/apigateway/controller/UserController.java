@@ -2,6 +2,7 @@ package com.apigateway.controller;
 
 import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
+import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
@@ -32,7 +33,7 @@ public class UserController {
 
     private final UserService userService;
 
-    private final LoggerServiceImpl loggerService;
+    private final LoggerService loggerService;
 
     @Autowired
     public UserController(UserService userService) {

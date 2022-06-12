@@ -1,7 +1,15 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.*;
+import com.apigateway.dto.CommentDTO;
+import com.apigateway.dto.CommentResponseDTO;
+import com.apigateway.dto.NewCommentDTO;
+import com.apigateway.dto.NewPostRequestDTO;
+import com.apigateway.dto.NewPostResponseDTO;
+import com.apigateway.dto.PostsResponseDTO;
+import com.apigateway.dto.ReactionDTO;
+import com.apigateway.dto.RemoveReactionDTO;
 import com.apigateway.mapper.PostMapper;
+import com.apigateway.service.LoggerService;
 import com.apigateway.service.PostService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
@@ -19,7 +27,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import proto.*;
+import proto.AddPostResponseProto;
+import proto.AddReactionResponseProto;
+import proto.CommentPostResponseProto;
+import proto.CommentProto;
+import proto.PostProto;
+import proto.RemoveReactionResponseProto;
+import proto.UserNamesResponseProto;
+import proto.UserPostsResponseProto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,7 +50,7 @@ public class PostController {
 
     private final UserService userService;
 
-    private final LoggerServiceImpl loggerService;
+    private final LoggerService loggerService;
 
     @Autowired
     public PostController(PostService postService, UserService userService) {
@@ -43,7 +58,7 @@ public class PostController {
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
-    
+
     @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
     @PostMapping(value = "posts")
     public ResponseEntity<NewPostResponseDTO> addPost(@RequestPart("post") @Valid NewPostRequestDTO newPostRequestDTO,
@@ -57,7 +72,7 @@ public class PostController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    
+
     @PreAuthorize("hasAuthority('REACT_POST_PERMISSION')")
     @PutMapping(value = "posts/{postId}/reaction")
     public ResponseEntity<HttpStatus> addReaction(@PathVariable String postId, @RequestBody ReactionDTO dto, HttpServletRequest request) {
@@ -71,7 +86,7 @@ public class PostController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    
+
     @PreAuthorize("hasAuthority('REACT_POST_PERMISSION')")
     @PutMapping(value = "posts/{postId}/remove-reaction")
     public ResponseEntity<HttpStatus> removeReaction(@PathVariable String postId, @RequestBody RemoveReactionDTO dto, HttpServletRequest request) {
