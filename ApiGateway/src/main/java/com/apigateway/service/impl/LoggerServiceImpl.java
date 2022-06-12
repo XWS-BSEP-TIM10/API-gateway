@@ -19,4 +19,6 @@ public class LoggerServiceImpl {
     public void unauthorizedAccess(String method, String path, String ip) {
         logger.warn("Unauthorized access to {}: {}. From: {}", method, path, ip);
     }
+
+    // --------------------------------------------------------------------------------------------------------------
 }
