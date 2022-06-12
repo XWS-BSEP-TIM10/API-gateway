@@ -4,6 +4,8 @@ import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
 import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.UserService;
+import com.apigateway.service.impl.LoggerServiceImpl;
+import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import proto.UpdateUserResponseProto;
 import proto.UserProto;
 import proto.UserResponseProto;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +33,12 @@ public class UserController {
 
     private final UserService userService;
 
-    private final ConnectionsService connectionsService;
+    private final LoggerServiceImpl loggerService;
 
     @Autowired
-    public UserController(UserService userService, ConnectionsService connectionsService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.connectionsService = connectionsService;
+        this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
     @PreAuthorize("hasAuthority('UPDATE_PROFILE_PERMISSION')")
@@ -50,14 +53,19 @@ public class UserController {
 
 
     @GetMapping("find")
-    public ResponseEntity<List<UserDto>> find(String first_name, String last_name) {
-        FindUserResponseProto response = userService.find(first_name, last_name);
-        List<UserDto> users = new ArrayList<>();
-        for (UserProto userProto : response.getUsersList()) {
-            UserDto dto = new UserDto(userProto);
-            users.add(dto);
+    public ResponseEntity<List<UserDto>> find(String first_name, String last_name, HttpServletRequest request) {
+        try {
+            FindUserResponseProto response = userService.find(first_name, last_name);
+            List<UserDto> users = new ArrayList<>();
+            for (UserProto userProto : response.getUsersList()) {
+                UserDto dto = new UserDto(userProto);
+                users.add(dto);
+            }
+            return ResponseEntity.ok(users);
+        } catch (StatusRuntimeException ex) {
+            loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(users);
     }
 
     @GetMapping("{id}")
