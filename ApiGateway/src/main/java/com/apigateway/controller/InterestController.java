@@ -1,5 +1,7 @@
 package com.apigateway.controller;
 
+import com.apigateway.service.impl.LoggerServiceImpl;
+import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,32 +20,47 @@ import com.apigateway.service.InterestService;
 import proto.NewInterestResponseProto;
 import proto.RemoveInterestResponseProto;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping(value = "/api/v1/interests")
 public class InterestController {
 	
 	private final InterestService interestService;
+
+	private final LoggerServiceImpl loggerService;
 	
 	@Autowired
 	public InterestController(InterestService interestService) {
 		this.interestService = interestService;
+		this.loggerService = new LoggerServiceImpl(this.getClass());
 	}
 	
 	@PreAuthorize("hasAuthority('CREATE_INTEREST_PERMISSION')")
 	@PostMapping
-    public ResponseEntity<InterestDTO> add(@RequestBody NewInterestDTO dto) {
-		NewInterestResponseProto response = interestService.add(dto);
-        if(response.getStatus().equals("Status 404"))
-            return  ResponseEntity.notFound().build();
-        return ResponseEntity.ok(new InterestDTO(response));
+    public ResponseEntity<InterestDTO> add(@RequestBody NewInterestDTO dto, HttpServletRequest request) {
+		try {
+			NewInterestResponseProto response = interestService.add(dto);
+			if (response.getStatus().equals("Status 404"))
+				return ResponseEntity.notFound().build();
+			return ResponseEntity.ok(new InterestDTO(response));
+		} catch (StatusRuntimeException ex) {
+			loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+			return ResponseEntity.internalServerError().build();
+		}
     }
 	
 	 @PreAuthorize("hasAuthority('DELETE_INTEREST_PERMISSION')")
 	 @DeleteMapping("{id}/user/{userId}")
-	    public ResponseEntity<HttpStatus> remove(@PathVariable Long id, @PathVariable String userId) {
-		 	RemoveInterestResponseProto response = interestService.remove(id, userId);
-		 	if(response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
-	        return ResponseEntity.ok().build();
-	    }
+	 public ResponseEntity<HttpStatus> remove(@PathVariable Long id, @PathVariable String userId, HttpServletRequest request) {
+		try {
+			RemoveInterestResponseProto response = interestService.remove(id, userId);
+			if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
+			return ResponseEntity.ok().build();
+		} catch (StatusRuntimeException ex) {
+		loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+		return ResponseEntity.internalServerError().build();
+		}
+	}
 
 }

@@ -2,7 +2,6 @@ package com.apigateway.controller;
 
 import com.apigateway.dto.UpdateUserDTO;
 import com.apigateway.dto.UserDto;
-import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
@@ -43,12 +42,17 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('UPDATE_PROFILE_PERMISSION')")
     @PutMapping
-    public ResponseEntity<UpdateUserDTO> update(@RequestBody UpdateUserDTO dto) {
-        UpdateUserResponseProto response = userService.update(dto);
-        if (response.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
-        if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
-        if (response.getStatus().equals("Status 409")) return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<UpdateUserDTO> update(@RequestBody UpdateUserDTO dto, HttpServletRequest request) {
+        try {
+            UpdateUserResponseProto response = userService.update(dto);
+            if (response.getStatus().equals("Status 400")) return ResponseEntity.badRequest().build();
+            if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
+            if (response.getStatus().equals("Status 409")) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.ok(dto);
+        } catch (StatusRuntimeException ex) {
+            loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
@@ -69,7 +73,7 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<UserDto> getProfile(@PathVariable String id, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<UserDto> getProfile(@PathVariable String id, @RequestHeader("Authorization") String token, HttpServletRequest request) {
         String loggedUserId = userService.getIdByToken(token.split(" ")[1]);
 
 //		if(!loggedUserId.equals(id)){
@@ -78,13 +82,16 @@ public class UserController {
 //				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 //		}
         // Pretpostavljamo da su svi profili javni
-
-        UserResponseProto response = userService.getById(id);
-        if (response.getStatus().equals("Status 404"))
-            return ResponseEntity.notFound().build();
-
-        UserDto dto = new UserDto(response.getUser());
-        return ResponseEntity.ok(dto);
+        try {
+            UserResponseProto response = userService.getById(id);
+            if (response.getStatus().equals("Status 404"))
+                return ResponseEntity.notFound().build();
+            UserDto dto = new UserDto(response.getUser());
+            return ResponseEntity.ok(dto);
+        } catch (StatusRuntimeException ex) {
+            loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PreAuthorize("hasAuthority('ADMIN_PERMISSION')")
