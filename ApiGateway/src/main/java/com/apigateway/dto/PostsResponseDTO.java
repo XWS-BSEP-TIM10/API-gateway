@@ -3,8 +3,6 @@ package com.apigateway.dto;
 import proto.CommentProto;
 import proto.PostProto;
 import proto.UserNamesResponseProto;
-
-import javax.xml.stream.events.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
