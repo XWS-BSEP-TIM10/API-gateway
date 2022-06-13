@@ -166,12 +166,15 @@ public class AuthController {
 
             RecoveryPasswordResponseProto recoveryPasswordResponseProto = authService.changePasswordRecovery(passwordDto.getNewPassword(), passwordDto.getRepeatedNewPassword(), token);
             if (recoveryPasswordResponseProto.getStatus().equals("Status 418")) {
+                loggerService.changePasswordRecoverFailed("Token expired", request.getUserPrincipal().getName(), request.getRemoteAddr());
                 return ResponseEntity.badRequest().body("Token expired");
-            } else if (recoveryPasswordResponseProto.getStatus().equals("Status 400")) {
-                return ResponseEntity.badRequest().body("Passwords not matching");
-            } else {
-                return ResponseEntity.ok().build();
             }
+            if (recoveryPasswordResponseProto.getStatus().equals("Status 400")) {
+                loggerService.changePasswordRecoverFailed("Passwords not matching", request.getUserPrincipal().getName(), request.getRemoteAddr());
+                return ResponseEntity.badRequest().body("Passwords not matching");
+            }
+            loggerService.passwordRecovered(request.getUserPrincipal().getName(), request.getRemoteAddr());
+            return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
             return ResponseEntity.internalServerError().build();
@@ -182,7 +185,7 @@ public class AuthController {
     public ResponseEntity<?> passwordlessToken(String email, HttpServletRequest request) {
         try {
             String id = userService.getId(email).getId();
-            if (id != null) {
+            if (!id.equals("")) {
                 SendTokenResponseProto recoverProto = authService.generateTokenPasswordless(id, email);
                 if (recoverProto.getStatus().equals("Status 200"))
                     return ResponseEntity.ok().build();
@@ -201,14 +204,15 @@ public class AuthController {
         try {
             LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
             if (loginResponseProto.getStatus().equals("Status 400")) {
+                loggerService.passwordlessLoginFailed("Token expired", request.getUserPrincipal().getName(), request.getRemoteAddr());
                 return ResponseEntity.badRequest().body("Token expired");
             }
+            loggerService.passwordlessLoginSuccess(request.getUserPrincipal().getName(), request.getRemoteAddr());
             return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(), loginResponseProto.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
             return ResponseEntity.internalServerError().build();
         }
-
     }
 
     @GetMapping("/refreshToken")
@@ -243,6 +247,7 @@ public class AuthController {
     public ResponseEntity<APITokenResponseDTO> generateAPIToken(@RequestBody APITokenRequestDTO requestDTO, HttpServletRequest request) {
         try {
             APITokenResponseProto response = authService.generateAPIToken(requestDTO.getUserId());
+            loggerService.APITokenGenerated(requestDTO.getUserId());
             return ResponseEntity.ok(new APITokenResponseDTO(response.getToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

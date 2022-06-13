@@ -22,4 +22,29 @@ public class LoggerServiceImpl implements LoggerService {
     public void unauthorizedAccess(String method, String path, String ip) {
         logger.warn("Unauthorized access to {}: {}. From: {}", method, path, ip);
     }
+
+    @Override
+    public void changePasswordRecoverFailed(String message, String email, String ip) {
+        logger.warn("Password recover failed: {}. Email: {}. From: {}", message, email, ip);
+    }
+
+    @Override
+    public void passwordRecovered(String email, String ip) {
+        logger.info("Password recovered successfully. Email: {}. From {}", email, ip);
+    }
+
+    @Override
+    public void passwordlessLoginFailed(String message, String email, String ip) {
+        logger.warn("Passwordless login failed: {}. Email: {}. From: {}", message, email, ip);
+    }
+
+    @Override
+    public void passwordlessLoginSuccess(String email, String ip) {
+        logger.info("Passwordless login successful. Email: {}. From: {}", email, ip);
+    }
+
+    @Override
+    public void APITokenGenerated(String userId) {
+        logger.info("API token successfully generated. User id: {}", userId);
+    }
 }
