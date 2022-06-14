@@ -8,6 +8,8 @@ import com.apigateway.dto.NewUserDTO;
 import com.apigateway.dto.NewUserResponseDTO;
 import com.apigateway.dto.PasswordDto;
 import com.apigateway.dto.TokenDTO;
+import com.apigateway.dto.TwoFADTO;
+import com.apigateway.dto.TwoFAResponseDTO;
 import com.apigateway.service.AuthService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import proto.APITokenResponseProto;
+import proto.Change2FAStatusResponseProto;
 import proto.ChangePasswordResponseProto;
 import proto.LoginResponseProto;
 import proto.NewUserResponseProto;
@@ -95,7 +98,7 @@ public class AuthController {
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
-            LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword());
+            LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getCode());
             if (response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
             return ResponseEntity.ok(new TokenDTO(response.getJwt(), response.getRefreshToken()));
@@ -105,6 +108,14 @@ public class AuthController {
         } catch (Exception ex) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+
+    @PreAuthorize("hasAuthority('UPDATE_2FA_STATUS')")
+    @PutMapping(value = "/2fa")
+    public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
+        Change2FAStatusResponseProto change2FAStatusResponseProto = authService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
+        return ResponseEntity.ok(new TwoFAResponseDTO(change2FAStatusResponseProto.getSecret()));
     }
 
     @GetMapping(value = "/confirm/{token}")

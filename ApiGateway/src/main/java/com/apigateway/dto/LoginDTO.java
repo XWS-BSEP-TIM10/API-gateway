@@ -10,11 +10,17 @@ public class LoginDTO {
     @NotBlank
     private String password;
 
+    private String code;
+
     public String getUsername() {
         return username;
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public String getCode() {
+        return code;
     }
 }

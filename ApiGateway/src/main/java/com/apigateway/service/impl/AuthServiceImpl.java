@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import proto.APITokenProto;
 import proto.APITokenResponseProto;
 import proto.AuthGrpcServiceGrpc;
+import proto.Change2FAStatusProto;
+import proto.Change2FAStatusResponseProto;
 import proto.ChangePasswordProto;
 import proto.ChangePasswordResponseProto;
 import proto.LoginProto;
@@ -46,9 +48,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponseProto login(String username, String password) {
-        LoginProto loginProto = LoginProto.newBuilder().setUsername(username)
-                .setPassword(password).build();
+    public LoginResponseProto login(String username, String password, String code) {
+        String nonNullCode = code == null ? "" : code;
+        LoginProto loginProto = LoginProto.newBuilder().setUsername(username).setPassword(password).setCode(nonNullCode).build();
         return this.stub.login(loginProto);
     }
 
@@ -113,6 +115,12 @@ public class AuthServiceImpl implements AuthService {
     public APITokenResponseProto generateAPIToken(String userId) {
         APITokenProto apiTokenProto = APITokenProto.newBuilder().setUserId(userId).build();
         return this.stub.generateAPIToken(apiTokenProto);
+    }
+
+    @Override
+    public Change2FAStatusResponseProto change2FAStatus(String userId, boolean enable2FA) {
+        Change2FAStatusProto change2FAStatusProto = Change2FAStatusProto.newBuilder().setUserId(userId).setEnable2FA(enable2FA).build();
+        return this.stub.change2FAStatus(change2FAStatusProto);
     }
 
 }
