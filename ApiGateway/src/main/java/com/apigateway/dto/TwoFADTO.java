@@ -1,9 +1,10 @@
 package com.apigateway.dto;
 
 public class TwoFADTO {
+
     private boolean enable2FA;
 
-    public String userId;
+    private String userId;
 
     public String getUserId() {
         return userId;

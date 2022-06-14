@@ -88,7 +88,6 @@ message APITokenResponseProto {
   string status = 2;
 }
 
-
 message Change2FAStatusProto {
   string userId = 1;
   bool enable2FA = 2;
@@ -96,6 +95,15 @@ message Change2FAStatusProto {
 
 message Change2FAStatusResponseProto {
   string secret = 1;
+  string status = 2;
+}
+
+message TwoFAStatusProto {
+  string userId = 1;
+}
+
+message TwoFAStatusResponseProto {
+  bool enabled2FA = 1;
   string status = 2;
 }
 

@@ -1,14 +1,7 @@
 package com.apigateway.service;
 
 import com.apigateway.dto.NewUserDTO;
-import proto.APITokenResponseProto;
-import proto.Change2FAStatusResponseProto;
-import proto.ChangePasswordResponseProto;
-import proto.LoginResponseProto;
-import proto.NewUserResponseProto;
-import proto.RecoveryPasswordResponseProto;
-import proto.SendTokenResponseProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 public interface AuthService {
 
@@ -35,4 +28,6 @@ public interface AuthService {
     APITokenResponseProto generateAPIToken(String userId);
 
     Change2FAStatusResponseProto change2FAStatus(String userId, boolean enable2FA);
+
+    TwoFAStatusResponseProto checkTwoFaStatus(String userId);
 }

@@ -4,25 +4,7 @@ import com.apigateway.dto.NewUserDTO;
 import com.apigateway.service.AuthService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.APITokenProto;
-import proto.APITokenResponseProto;
-import proto.AuthGrpcServiceGrpc;
-import proto.Change2FAStatusProto;
-import proto.Change2FAStatusResponseProto;
-import proto.ChangePasswordProto;
-import proto.ChangePasswordResponseProto;
-import proto.LoginProto;
-import proto.LoginResponseProto;
-import proto.NewUserProto;
-import proto.NewUserResponseProto;
-import proto.RecoveryPasswordProto;
-import proto.RecoveryPasswordResponseProto;
-import proto.RefreshTokenProto;
-import proto.SendTokenProto;
-import proto.SendTokenResponseProto;
-import proto.TokenProto;
-import proto.VerifyAccountProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 @Component
 public class AuthServiceImpl implements AuthService {
@@ -123,4 +105,9 @@ public class AuthServiceImpl implements AuthService {
         return this.stub.change2FAStatus(change2FAStatusProto);
     }
 
+    @Override
+    public TwoFAStatusResponseProto checkTwoFaStatus(String userId) {
+        TwoFAStatusProto twoFAStatusProto = TwoFAStatusProto.newBuilder().setUserId(userId).build();
+        return this.stub.check2FAStatus(twoFAStatusProto);
+    }
 }
