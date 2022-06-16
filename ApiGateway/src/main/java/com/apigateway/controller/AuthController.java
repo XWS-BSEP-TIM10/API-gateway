@@ -1,13 +1,5 @@
 package com.apigateway.controller;
-
-import com.apigateway.dto.APITokenRequestDTO;
-import com.apigateway.dto.APITokenResponseDTO;
-import com.apigateway.dto.ChangePasswordDto;
-import com.apigateway.dto.LoginDTO;
-import com.apigateway.dto.NewUserDTO;
-import com.apigateway.dto.NewUserResponseDTO;
-import com.apigateway.dto.PasswordDto;
-import com.apigateway.dto.TokenDTO;
+import com.apigateway.dto.*;
 import com.apigateway.service.AuthService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
@@ -29,13 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import proto.APITokenResponseProto;
-import proto.ChangePasswordResponseProto;
-import proto.LoginResponseProto;
-import proto.NewUserResponseProto;
-import proto.RecoveryPasswordResponseProto;
-import proto.SendTokenResponseProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -95,7 +81,9 @@ public class AuthController {
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
-            LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword());
+            LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getCode());
+            if(response.getStatus().equals("Status 300"))
+                return ResponseEntity.status(300).build();
             if (response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
             return ResponseEntity.ok(new TokenDTO(response.getJwt(), response.getRefreshToken()));
@@ -105,6 +93,25 @@ public class AuthController {
         } catch (Exception ex) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+
+    @PreAuthorize("hasAuthority('UPDATE_2FA_STATUS')")
+    @PutMapping(value = "/2fa")
+    public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
+        Change2FAStatusResponseProto response = authService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
+        if(response.getStatus().equals("Status 404"))
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(new TwoFAResponseDTO(response.getSecret()));
+    }
+
+    @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
+    @GetMapping(value= "/2fa/status/{userId}")
+    public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId, HttpServletRequest request) {
+        TwoFAStatusResponseProto response = authService.checkTwoFaStatus(userId);
+        if(response.getStatus().equals("Status 404"))
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(new TwoFAStatusDTO(response.getEnabled2FA()));
     }
 
     @GetMapping(value = "/confirm/{token}")
