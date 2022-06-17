@@ -29,6 +29,7 @@ public class ExperienceController {
 
     private final ExperienceService experienceService;
     private final LoggerService loggerService;
+    private static final String NOT_FOUND_STATUS = "Status 404";
 
     @Autowired
     public ExperienceController(ExperienceService experienceService) {
@@ -41,7 +42,7 @@ public class ExperienceController {
     public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto, HttpServletRequest request) {
         try {
             NewExperienceResponseProto response = experienceService.add(dto);
-            if (response.getStatus().equals("Status 404"))
+            if (response.getStatus().equals(NOT_FOUND_STATUS))
                 return ResponseEntity.notFound().build();
             else if (response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
@@ -57,7 +58,7 @@ public class ExperienceController {
     public ResponseEntity<ExperienceDTO> update(@PathVariable Long id, @RequestBody NewExperienceDTO dto, HttpServletRequest request) {
         try {
             UpdateExperienceResponseProto response = experienceService.update(id, dto);
-            if (response.getStatus().equals("Status 404"))
+            if (response.getStatus().equals(NOT_FOUND_STATUS))
                 return ResponseEntity.notFound().build();
             else if (response.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
@@ -73,7 +74,7 @@ public class ExperienceController {
     public ResponseEntity<HttpStatus> remove(@PathVariable Long id, HttpServletRequest request) {
         try {
             RemoveExperienceResponseProto response = experienceService.remove(id);
-            if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
+            if (response.getStatus().equals(NOT_FOUND_STATUS)) return ResponseEntity.notFound().build();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

@@ -14,5 +14,5 @@ public interface LoggerService {
 
     void passwordlessLoginSuccess(String email, String ip);
 
-    void APITokenGenerated(String userId);
+    void apiTokenGenerated(String userId);
 }

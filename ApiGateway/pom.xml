@@ -17,6 +17,8 @@
         <java.version>17</java.version>
         <os-maven-plugin.version>1.6.1</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <sonar.organization>xws-bsep-tim10</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>

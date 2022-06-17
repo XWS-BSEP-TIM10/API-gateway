@@ -2,42 +2,40 @@ package com.apigateway.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
 
 
 // POJO koji implementira Spring Security GrantedAuthority kojim se mogu definisati role u aplikaciji
 
 public class Role implements GrantedAuthority {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 
     Long id;
 
 
     String name;
-    
-    private Set<Permission> permission = new HashSet<Permission>();
 
-    
+    private Set<Permission> permission = new HashSet<>();
 
-	public Role(Long id, String name, Set<com.apigateway.model.Permission> permission) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.permission = permission;
-	}
 
-	@JsonIgnore
+    public Role(Long id, String name, Set<com.apigateway.model.Permission> permission) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.permission = permission;
+    }
+
+    @JsonIgnore
     @Override
     public String getAuthority() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -55,14 +53,13 @@ public class Role implements GrantedAuthority {
         this.id = id;
     }
 
-	public Set<Permission> getPermission() {
-		return permission;
-	}
+    public Set<Permission> getPermission() {
+        return permission;
+    }
 
-	public void setPermission(Set<Permission> permission) {
-		this.permission = permission;
-	}
-    
-    
+    public void setPermission(Set<Permission> permission) {
+        this.permission = permission;
+    }
+
 
 }

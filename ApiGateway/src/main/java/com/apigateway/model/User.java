@@ -3,7 +3,10 @@ package com.apigateway.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class User implements UserDetails {
@@ -14,10 +17,10 @@ public class User implements UserDetails {
 
     private String username;
 
- 
+
     private String password;
 
- 
+
     private List<Role> roles;
 
 
@@ -83,9 +86,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<Permission> permissions = new HashSet<Permission>();
-        for(Role role : this.roles){
-            for(Permission permission : role.getPermission()){
+        Set<Permission> permissions = new HashSet<>();
+        for (Role role : this.roles) {
+            for (Permission permission : role.getPermission()) {
                 permissions.add(permission);
             }
         }

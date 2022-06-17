@@ -22,6 +22,7 @@ public class CreateJobAdRequestDTO {
     private List<String> requirements;
 
     public CreateJobAdRequestDTO() {
+        /*DTO*/
     }
 
     public String getTitle() {

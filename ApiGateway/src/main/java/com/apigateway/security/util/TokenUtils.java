@@ -5,7 +5,6 @@ import com.apigateway.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,66 +17,23 @@ public class TokenUtils {
 
     // Izdavac tokena
     @Value("spring-security-example")
-    private String APP_NAME;
+    private static final String APP_NAME = "spring-security-example";
 
     // Tajna koju samo backend aplikacija treba da zna kako bi mogla da generise i proveri JWT https://jwt.io/
     @Value("somesecret")
-    public String SECRET;
+    public static final String SECRET = "somesecret";
 
     // Period vazenja tokena - 30 minuta
     @Value("1800000")
-    private int EXPIRES_IN;
+    private static final int EXPIRES_IN = 1800000;
 
     // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
     @Value("Authorization")
-    private String AUTH_HEADER;
+    private static final String AUTH_HEADER = "Authorization";
 
     @Value("DislinktAuth")
-    private String DISLINKT_AUTH_HEADER;
-
-    // Moguce je generisati JWT za razlicite klijente (npr. web i mobilni klijenti nece imati isto trajanje JWT, 
-    // JWT za mobilne klijente ce trajati duze jer se mozda aplikacija redje koristi na taj nacin)
-    // Radi jednostavnosti primera, necemo voditi racuna o uređaju sa kojeg zahtev stiže.
-    //	private static final String AUDIENCE_UNKNOWN = "unknown";
-    //	private static final String AUDIENCE_MOBILE = "mobile";
-    //	private static final String AUDIENCE_TABLET = "tablet";
-
-    private static final String AUDIENCE_WEB = "web";
-
-    // Algoritam za potpisivanje JWT
-    private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
-
-
-    /**
-     * Funkcija za utvrđivanje tipa uređaja za koji se JWT kreira.
-     *
-     * @return Tip uređaja.
-     */
-    private String generateAudience() {
-
-        //	Moze se iskoristiti org.springframework.mobile.device.Device objekat za odredjivanje tipa uredjaja sa kojeg je zahtev stigao.
-        //	https://spring.io/projects/spring-mobile
-
-        //	String audience = AUDIENCE_UNKNOWN;
-        //		if (device.isNormal()) {
-        //			audience = AUDIENCE_WEB;
-        //		} else if (device.isTablet()) {
-        //			audience = AUDIENCE_TABLET;
-        //		} else if (device.isMobile()) {
-        //			audience = AUDIENCE_MOBILE;
-        //		}
-
-        return AUDIENCE_WEB;
-    }
-
-    /**
-     * Funkcija generiše datum do kog je JWT token validan.
-     *
-     * @return Datum do kojeg je JWT validan.
-     */
-    private Date generateExpirationDate() {
-        return new Date(new Date().getTime() + EXPIRES_IN);
-    }
+    private static final String DISLINKT_AUTH_HEADER = "DislinktAuth";
+    
 
     // =================================================================
 
@@ -122,6 +78,8 @@ public class TokenUtils {
 
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
+            if (claims == null || claims.isEmpty())
+                return null;
             username = claims.getSubject();
         } catch (ExpiredJwtException ex) {
             throw ex;
@@ -136,6 +94,8 @@ public class TokenUtils {
         String id;
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
+            if (claims == null || claims.isEmpty())
+                return null;
             id = claims.get("userId", String.class);
         } catch (ExpiredJwtException ex) {
             throw ex;
@@ -155,6 +115,8 @@ public class TokenUtils {
         Date issueAt;
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
+            if (claims == null || claims.isEmpty())
+                return null;
             issueAt = claims.getIssuedAt();
         } catch (ExpiredJwtException ex) {
             throw ex;
@@ -174,6 +136,8 @@ public class TokenUtils {
         String audience;
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
+            if (claims == null || claims.isEmpty())
+                return null;
             audience = claims.getAudience();
         } catch (ExpiredJwtException ex) {
             throw ex;
@@ -193,6 +157,8 @@ public class TokenUtils {
         Date expiration;
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
+            if (claims == null || claims.isEmpty())
+                return null;
             expiration = claims.getExpiration();
         } catch (ExpiredJwtException ex) {
             throw ex;
@@ -240,7 +206,6 @@ public class TokenUtils {
      */
     public Boolean validateToken(String token, User userDetails) {
         final String username = getUsernameFromToken(token);
-        final Date created = getIssuedAtDateFromToken(token);
 
         // Token je validan kada:
         return (username != null // korisnicko ime nije null
@@ -248,16 +213,6 @@ public class TokenUtils {
         // nakon kreiranja tokena korisnik nije menjao svoju lozinku 
     }
 
-    /**
-     * Funkcija proverava da li je lozinka korisnika izmenjena nakon izdavanja tokena.
-     *
-     * @param created           Datum kreiranja tokena.
-     * @param lastPasswordReset Datum poslednje izmene lozinke.
-     * @return Informacija da li je token kreiran pre poslednje izmene lozinke ili ne.
-     */
-    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-        return (lastPasswordReset != null && created.before(lastPasswordReset));
-    }
 
     // =================================================================
 

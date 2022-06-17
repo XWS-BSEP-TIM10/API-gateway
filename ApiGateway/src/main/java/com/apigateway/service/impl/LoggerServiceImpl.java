@@ -44,7 +44,7 @@ public class LoggerServiceImpl implements LoggerService {
     }
 
     @Override
-    public void APITokenGenerated(String userId) {
+    public void apiTokenGenerated(String userId) {
         logger.info("API token successfully generated. User id: {}", userId);
     }
 }

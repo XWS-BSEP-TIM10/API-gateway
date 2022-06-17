@@ -10,7 +10,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import proto.PermissionProto;
 import proto.RoleProto;
@@ -34,14 +33,12 @@ import java.util.Set;
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 
-    private TokenUtils tokenUtils;
-
-    private UserDetailsService userDetailsService;
+    private final TokenUtils tokenUtils;
 
 
     private final UserDetailsGrpcService userDetailsGrpcService;
 
-    protected final Log LOGGER = LogFactory.getLog(getClass());
+    protected final Log myLogger = LogFactory.getLog(getClass());
 
     public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsGrpcService userDetailsGrpcService) {
         this.tokenUtils = tokenHelper;
@@ -70,12 +67,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                 if (username != null) {
 
-                    // 3. Preuzimanje korisnika na osnovu username-a
-                    //UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                     User userDetails = getUserDetails(username);
                     // 4. Provera da li je prosledjeni token validan
-                    if (tokenUtils.validateToken(authToken, userDetails)) {
+                    if (Boolean.TRUE.equals(tokenUtils.validateToken(authToken, userDetails))) {
 
                         // 5. Kreiraj autentifikaciju
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
@@ -86,7 +81,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException ex) {
-            LOGGER.debug("Token expired!");
+            myLogger.debug("Token expired!");
         }
 
         // prosledi request dalje u sledeci filter
@@ -99,9 +94,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private List<Role> getRoles(UserDetailsResponseProto proto) {
-        List<Role> roles = new ArrayList<Role>();
+        List<Role> roles = new ArrayList<>();
         for (RoleProto roleProto : proto.getRoleList()) {
-            Set<Permission> permissions = new HashSet<Permission>();
+            Set<Permission> permissions = new HashSet<>();
             for (PermissionProto permProto : roleProto.getPermissionsList()) {
                 permissions.add(new Permission(permProto.getId(), permProto.getName()));
             }
