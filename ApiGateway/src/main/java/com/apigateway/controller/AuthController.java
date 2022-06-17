@@ -57,8 +57,8 @@ public class AuthController {
     private final LoggerService loggerService;
 
     private static final String TEAPOT_STATUS = "Status 418";
-    private static final String NOT_FOUND_STATUS = "Status 418";
-    private static final String BAD_REQUEST_STATUS = "Status 418";
+    private static final String NOT_FOUND_STATUS = "Status 404";
+    private static final String BAD_REQUEST_STATUS = "Status 400";
     private static final String TOKEN_EXPIRED = "Token expired";
 
     @Autowired
@@ -197,14 +197,14 @@ public class AuthController {
 
             RecoveryPasswordResponseProto recoveryPasswordResponseProto = authService.changePasswordRecovery(passwordDto.getNewPassword(), passwordDto.getRepeatedNewPassword(), token);
             if (recoveryPasswordResponseProto.getStatus().equals(TEAPOT_STATUS)) {
-                loggerService.changePasswordRecoverFailed(TOKEN_EXPIRED, request.getUserPrincipal().getName(), request.getRemoteAddr());
+                loggerService.changePasswordRecoverFailed(TOKEN_EXPIRED, request.getRemoteAddr());
                 return ResponseEntity.badRequest().body(TOKEN_EXPIRED);
             }
             if (recoveryPasswordResponseProto.getStatus().equals("Status 400")) {
-                loggerService.changePasswordRecoverFailed("Passwords not matching", request.getUserPrincipal().getName(), request.getRemoteAddr());
+                loggerService.changePasswordRecoverFailed("Passwords not matching", request.getRemoteAddr());
                 return ResponseEntity.badRequest().build();
             }
-            loggerService.passwordRecovered(request.getUserPrincipal().getName(), request.getRemoteAddr());
+            loggerService.passwordRecovered(request.getRemoteAddr());
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -235,10 +235,10 @@ public class AuthController {
         try {
             LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
             if (loginResponseProto.getStatus().equals(BAD_REQUEST_STATUS)) {
-                loggerService.passwordlessLoginFailed(TOKEN_EXPIRED, request.getUserPrincipal().getName(), request.getRemoteAddr());
+                loggerService.passwordlessLoginFailed(TOKEN_EXPIRED, request.getRemoteAddr());
                 return ResponseEntity.badRequest().build();
             }
-            loggerService.passwordlessLoginSuccess(request.getUserPrincipal().getName(), request.getRemoteAddr());
+            loggerService.passwordlessLoginSuccess(request.getRemoteAddr());
             return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(), loginResponseProto.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

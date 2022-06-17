@@ -6,13 +6,13 @@ public interface LoggerService {
 
     void unauthorizedAccess(String method, String path, String ip);
 
-    void changePasswordRecoverFailed(String message, String email, String ip);
+    void changePasswordRecoverFailed(String message, String ip);
 
-    void passwordRecovered(String email, String ip);
+    void passwordRecovered(String ip);
 
-    void passwordlessLoginFailed(String message, String email, String ip);
+    void passwordlessLoginFailed(String message, String ip);
 
-    void passwordlessLoginSuccess(String email, String ip);
+    void passwordlessLoginSuccess(String ip);
 
     void apiTokenGenerated(String userId);
 }

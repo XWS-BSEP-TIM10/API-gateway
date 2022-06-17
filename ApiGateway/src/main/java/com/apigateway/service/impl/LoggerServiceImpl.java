@@ -24,23 +24,23 @@ public class LoggerServiceImpl implements LoggerService {
     }
 
     @Override
-    public void changePasswordRecoverFailed(String message, String email, String ip) {
-        logger.warn("Password recover failed: {}. Email: {}. From: {}", message, email, ip);
+    public void changePasswordRecoverFailed(String message, String ip) {
+        logger.warn("Password recover failed: {}. From: {}", message, ip);
     }
 
     @Override
-    public void passwordRecovered(String email, String ip) {
-        logger.info("Password recovered successfully. Email: {}. From {}", email, ip);
+    public void passwordRecovered(String ip) {
+        logger.info("Password recovered successfully. From {}", ip);
     }
 
     @Override
-    public void passwordlessLoginFailed(String message, String email, String ip) {
-        logger.warn("Passwordless login failed: {}. Email: {}. From: {}", message, email, ip);
+    public void passwordlessLoginFailed(String message, String ip) {
+        logger.warn("Passwordless login failed: {}. From: {}", message, ip);
     }
 
     @Override
-    public void passwordlessLoginSuccess(String email, String ip) {
-        logger.info("Passwordless login successful. Email: {}. From: {}", email, ip);
+    public void passwordlessLoginSuccess(String ip) {
+        logger.info("Passwordless login successful. From: {}", ip);
     }
 
     @Override
