@@ -53,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Definisemo nacin utvrdjivanja korisnika pri autentifikaciji
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(AuthenticationManagerBuilder auth) {
 
         // Definisemo uputstva AuthenticationManager-u:
 

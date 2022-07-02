@@ -75,14 +75,6 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<UserDto> getProfile(@PathVariable String id, @RequestHeader("Authorization") String token, HttpServletRequest request) {
-        String loggedUserId = userService.getIdByToken(token.split(" ")[1]);
-
-//		if(!loggedUserId.equals(id)){
-//			String connectionStatus = connectionsService.getConnectionStatus(loggedUserId, id).getConnectionStatus();
-//			if(!connectionStatus.equals("CONNECTED"))
-//				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//		}
-        // Pretpostavljamo da su svi profili javni
         try {
             UserResponseProto response = userService.getById(id);
             if (response.getStatus().equals("Status 404"))
@@ -97,7 +89,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN_PERMISSION')")
     @GetMapping
-    public ResponseEntity<?> admin() {
+    public ResponseEntity<HttpStatus> admin() {
         return ResponseEntity.ok().build();
     }
 }

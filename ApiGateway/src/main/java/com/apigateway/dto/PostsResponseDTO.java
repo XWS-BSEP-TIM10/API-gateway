@@ -1,8 +1,8 @@
 package com.apigateway.dto;
 
-import proto.CommentProto;
 import proto.PostProto;
 import proto.UserNamesResponseProto;
+
 import java.util.ArrayList;
 import java.util.List;
 

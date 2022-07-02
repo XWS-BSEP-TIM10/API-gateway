@@ -1,5 +1,16 @@
 package com.apigateway.controller;
-import com.apigateway.dto.*;
+
+import com.apigateway.dto.APITokenRequestDTO;
+import com.apigateway.dto.APITokenResponseDTO;
+import com.apigateway.dto.ChangePasswordDto;
+import com.apigateway.dto.LoginDTO;
+import com.apigateway.dto.NewUserDTO;
+import com.apigateway.dto.NewUserResponseDTO;
+import com.apigateway.dto.PasswordDto;
+import com.apigateway.dto.TokenDTO;
+import com.apigateway.dto.TwoFADTO;
+import com.apigateway.dto.TwoFAResponseDTO;
+import com.apigateway.dto.TwoFAStatusDTO;
 import com.apigateway.service.AuthService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
@@ -21,7 +32,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import proto.*;
+import proto.APITokenResponseProto;
+import proto.Change2FAStatusResponseProto;
+import proto.ChangePasswordResponseProto;
+import proto.LoginResponseProto;
+import proto.NewUserResponseProto;
+import proto.RecoveryPasswordResponseProto;
+import proto.SendTokenResponseProto;
+import proto.TwoFAStatusResponseProto;
+import proto.VerifyAccountResponseProto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -37,6 +56,11 @@ public class AuthController {
     private final UserService userService;
     private final LoggerService loggerService;
 
+    private static final String TEAPOT_STATUS = "Status 418";
+    private static final String NOT_FOUND_STATUS = "Status 404";
+    private static final String BAD_REQUEST_STATUS = "Status 400";
+    private static final String TOKEN_EXPIRED = "Token expired";
+
     @Autowired
     public AuthController(AuthService authService, UserService userService) {
         this.authService = authService;
@@ -45,16 +69,16 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> addUser(@Valid @RequestBody NewUserDTO newUserDTO, HttpServletRequest request) {
+    public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO, HttpServletRequest request) {
         try {
             newUserDTO.setId(userService.getId(newUserDTO.getEmail()).getId());
             NewUserResponseProto response = authService.signUp(newUserDTO);
-            if (response.getStatus().equals("Status 400"))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS))
                 return ResponseEntity.badRequest().build();
             if (response.getStatus().equals("Status 409"))
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
-            if (response.getStatus().equals("Status 418"))
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            if (response.getStatus().equals(TEAPOT_STATUS))
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
             if (response.getStatus().equals("Status 500"))
                 return ResponseEntity.internalServerError().build();
             NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
@@ -70,7 +94,7 @@ public class AuthController {
     public Map<String, String> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
@@ -82,9 +106,9 @@ public class AuthController {
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
             LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getCode());
-            if(response.getStatus().equals("Status 300"))
+            if (response.getStatus().equals("Status 300"))
                 return ResponseEntity.status(300).build();
-            if (response.getStatus().equals("Status 400"))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS))
                 return ResponseEntity.badRequest().build();
             return ResponseEntity.ok(new TokenDTO(response.getJwt(), response.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
@@ -100,25 +124,25 @@ public class AuthController {
     @PutMapping(value = "/2fa")
     public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
         Change2FAStatusResponseProto response = authService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
-        if(response.getStatus().equals("Status 404"))
+        if (response.getStatus().equals(NOT_FOUND_STATUS))
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new TwoFAResponseDTO(response.getSecret()));
     }
 
     @PreAuthorize("hasAuthority('CHECK_2FA_STATUS')")
-    @GetMapping(value= "/2fa/status/{userId}")
+    @GetMapping(value = "/2fa/status/{userId}")
     public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId, HttpServletRequest request) {
         TwoFAStatusResponseProto response = authService.checkTwoFaStatus(userId);
-        if(response.getStatus().equals("Status 404"))
+        if (response.getStatus().equals(NOT_FOUND_STATUS))
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new TwoFAStatusDTO(response.getEnabled2FA()));
     }
 
     @GetMapping(value = "/confirm/{token}")
-    public ResponseEntity<?> confirmToken(@PathVariable String token, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> confirmToken(@PathVariable String token, HttpServletRequest request) {
         try {
             VerifyAccountResponseProto response = authService.verifyUserAccount(token);
-            if (response.getStatus().equals("Status 400"))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS))
                 return ResponseEntity.badRequest().build();
             return ResponseEntity.ok().build();
 
@@ -133,13 +157,13 @@ public class AuthController {
 
     @PreAuthorize("hasAuthority('CHANGE_PASSWORD_PERMISSION')")
     @PutMapping(value = "/changePassword")
-    public ResponseEntity<?> login(@RequestBody ChangePasswordDto changePasswordDto, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> login(@RequestBody ChangePasswordDto changePasswordDto, HttpServletRequest request) {
         try {
             ChangePasswordResponseProto response = authService.changePassword(changePasswordDto.getUserId(), changePasswordDto.getOldPassword(), changePasswordDto.getNewPassword(), changePasswordDto.getRepeatedNewPassword());
-            if (response.getStatus().equals("Status 400"))
-                return ResponseEntity.badRequest().body(response.getMessage());
-            if (response.getStatus().equals("Status 418"))
-                return ResponseEntity.badRequest().body(response.getMessage());
+            if (response.getStatus().equals(BAD_REQUEST_STATUS))
+                return ResponseEntity.badRequest().build();
+            if (response.getStatus().equals(TEAPOT_STATUS))
+                return ResponseEntity.badRequest().build();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -150,7 +174,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/recover")
-    public ResponseEntity<?> recoverAccount(@Email String email, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> recoverAccount(@Email String email, HttpServletRequest request) {
         try {
             String id = userService.getId(email).getId();
             if (!id.equals("")) {
@@ -168,19 +192,19 @@ public class AuthController {
     }
 
     @PutMapping(value = "/recover/changePassword/{token}")
-    public ResponseEntity<?> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto, HttpServletRequest request) {
+    public ResponseEntity<String> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto, HttpServletRequest request) {
         try {
 
             RecoveryPasswordResponseProto recoveryPasswordResponseProto = authService.changePasswordRecovery(passwordDto.getNewPassword(), passwordDto.getRepeatedNewPassword(), token);
-            if (recoveryPasswordResponseProto.getStatus().equals("Status 418")) {
-                loggerService.changePasswordRecoverFailed("Token expired", request.getUserPrincipal().getName(), request.getRemoteAddr());
-                return ResponseEntity.badRequest().body("Token expired");
+            if (recoveryPasswordResponseProto.getStatus().equals(TEAPOT_STATUS)) {
+                loggerService.changePasswordRecoverFailed(TOKEN_EXPIRED, request.getRemoteAddr());
+                return ResponseEntity.badRequest().body(TOKEN_EXPIRED);
             }
             if (recoveryPasswordResponseProto.getStatus().equals("Status 400")) {
-                loggerService.changePasswordRecoverFailed("Passwords not matching", request.getUserPrincipal().getName(), request.getRemoteAddr());
-                return ResponseEntity.badRequest().body("Passwords not matching");
+                loggerService.changePasswordRecoverFailed("Passwords not matching", request.getRemoteAddr());
+                return ResponseEntity.badRequest().build();
             }
-            loggerService.passwordRecovered(request.getUserPrincipal().getName(), request.getRemoteAddr());
+            loggerService.passwordRecovered(request.getRemoteAddr());
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -189,7 +213,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/passwordless")
-    public ResponseEntity<?> passwordlessToken(String email, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> passwordlessToken(String email, HttpServletRequest request) {
         try {
             String id = userService.getId(email).getId();
             if (!id.equals("")) {
@@ -207,14 +231,14 @@ public class AuthController {
     }
 
     @GetMapping(value = "/login/passwordless/{token}")
-    public ResponseEntity<?> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
+    public ResponseEntity<TokenDTO> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
         try {
             LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
-            if (loginResponseProto.getStatus().equals("Status 400")) {
-                loggerService.passwordlessLoginFailed("Token expired", request.getUserPrincipal().getName(), request.getRemoteAddr());
-                return ResponseEntity.badRequest().body("Token expired");
+            if (loginResponseProto.getStatus().equals(BAD_REQUEST_STATUS)) {
+                loggerService.passwordlessLoginFailed(TOKEN_EXPIRED, request.getRemoteAddr());
+                return ResponseEntity.badRequest().build();
             }
-            loggerService.passwordlessLoginSuccess(request.getUserPrincipal().getName(), request.getRemoteAddr());
+            loggerService.passwordlessLoginSuccess(request.getRemoteAddr());
             return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(), loginResponseProto.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -235,10 +259,10 @@ public class AuthController {
     }
 
     @GetMapping("/checkToken/{token}")
-    public ResponseEntity<?> checkToken(@PathVariable String token, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> checkToken(@PathVariable String token, HttpServletRequest request) {
         try {
             SendTokenResponseProto response = authService.checkToken(token);
-            if (response.getStatus().equals("Status 404")) {
+            if (response.getStatus().equals(NOT_FOUND_STATUS)) {
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.ok().build();
@@ -254,7 +278,7 @@ public class AuthController {
     public ResponseEntity<APITokenResponseDTO> generateAPIToken(@RequestBody APITokenRequestDTO requestDTO, HttpServletRequest request) {
         try {
             APITokenResponseProto response = authService.generateAPIToken(requestDTO.getUserId());
-            loggerService.APITokenGenerated(requestDTO.getUserId());
+            loggerService.apiTokenGenerated(requestDTO.getUserId());
             return ResponseEntity.ok(new APITokenResponseDTO(response.getToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

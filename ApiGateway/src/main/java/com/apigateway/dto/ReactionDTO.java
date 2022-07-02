@@ -6,6 +6,7 @@ public class ReactionDTO {
     private Boolean like;
 
     public ReactionDTO() {
+        /*dto*/
     }
 
     public Boolean isLike() {
