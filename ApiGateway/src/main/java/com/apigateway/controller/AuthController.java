@@ -56,6 +56,7 @@ public class AuthController {
     private final UserService userService;
     private final LoggerService loggerService;
 
+    private static final String CONFLICT_STATUS = "Status 409";
     private static final String TEAPOT_STATUS = "Status 418";
     private static final String NOT_FOUND_STATUS = "Status 404";
     private static final String BAD_REQUEST_STATUS = "Status 400";
@@ -75,12 +76,8 @@ public class AuthController {
             NewUserResponseProto response = authService.signUp(newUserDTO);
             if (response.getStatus().equals(BAD_REQUEST_STATUS))
                 return ResponseEntity.badRequest().build();
-            if (response.getStatus().equals("Status 409"))
+            if (response.getStatus().equals(CONFLICT_STATUS) || response.getStatus().equals(TEAPOT_STATUS))
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            if (response.getStatus().equals(TEAPOT_STATUS))
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            if (response.getStatus().equals("Status 500"))
-                return ResponseEntity.internalServerError().build();
             NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
             return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
         } catch (StatusRuntimeException ex) {
