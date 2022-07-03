@@ -2,6 +2,8 @@ package com.apigateway.service.impl;
 
 import java.text.SimpleDateFormat;
 
+import org.springframework.stereotype.Service;
+
 import com.apigateway.dto.ChatMessageDTO;
 import com.apigateway.service.MessagingService;
 
@@ -10,6 +12,7 @@ import proto.ChatMessageProto;
 import proto.ChatMessageResponseProto;
 import proto.MessagingGrpcServiceGrpc;
 
+@Service
 public class MessagingServiceImpl implements MessagingService{
 	
 	 private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
