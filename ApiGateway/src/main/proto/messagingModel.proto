@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+
+message ChatMessageProto{
+ 	  	string chatId = 1;
+	    string senderId = 2;
+	    string recipientId = 3;
+	    string senderName = 4;
+	    string recipientName = 5;
+	    string content = 6;
+	    string timestamp = 7;
+	    string status = 8;
+}
+
+message ChatMessageResponseProto{
+		string id = 1;
+ 	  	string chatId = 2;
+	    string senderId = 3;
+	    string recipientId = 4;
+	    string senderName = 5;
+	    string recipientName = 6;
+	    string content = 7;
+	    string timestamp = 8;
+	    string status = 9;
+	    string HTTPstatus = 10;
+}
