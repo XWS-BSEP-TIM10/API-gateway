@@ -1,8 +1,8 @@
 package com.apigateway.dto;
 
 public class UpdateUserDTO {
-	
-	private String uuid;
+
+    private String uuid;
 
     private String firstName;
 
@@ -18,8 +18,9 @@ public class UpdateUserDTO {
 
     private String username;
 
-
     private String biography;
+
+    private boolean profilePublic;
 
     public UpdateUserDTO() {
     }
@@ -34,7 +35,7 @@ public class UpdateUserDTO {
         this.username = username;
         this.biography = biography;
     }
-    
+
 
     public String getFirstName() {
         return firstName;
@@ -101,13 +102,15 @@ public class UpdateUserDTO {
         this.biography = biography;
     }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-    
-    
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean isProfilePublic() {
+        return profilePublic;
+    }
 }
