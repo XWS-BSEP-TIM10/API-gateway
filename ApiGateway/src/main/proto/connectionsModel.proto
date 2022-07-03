@@ -28,3 +28,12 @@ message ConnectionStatusResponseProto {
   string connectionStatus = 1;
   string status = 2;
 }
+
+message CreateBlockRequestProto {
+  string initiatorId = 1;
+  string receiverId = 2;
+}
+
+message BlockResponseProto {
+  string status = 1;
+}

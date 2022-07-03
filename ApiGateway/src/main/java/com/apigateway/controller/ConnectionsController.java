@@ -1,5 +1,6 @@
 package com.apigateway.controller;
 
+import com.apigateway.dto.BlockRequestDTO;
 import com.apigateway.dto.ConnectionRequestDTO;
 import com.apigateway.dto.ConnectionStatusDto;
 import com.apigateway.service.ConnectionsService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
 
@@ -42,6 +44,22 @@ public class ConnectionsController {
             if (connectionResponseProto.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
             else if (connectionResponseProto.getStatus().equals("Status 200"))
+                return ResponseEntity.ok().build();
+            return ResponseEntity.internalServerError().build();
+        } catch (StatusRuntimeException ex) {
+            loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PreAuthorize("hasAuthority('CREATE_BLOCK_PERMISSION')")
+    @PostMapping(value = "connections/block")
+    public ResponseEntity<HttpStatus> connect(@RequestBody @Valid BlockRequestDTO blockRequestDTO, HttpServletRequest request) {
+        try {
+            BlockResponseProto blockResponseProto = connectionsService.createBlock(blockRequestDTO.getInitiatorId(), blockRequestDTO.getReceiverId());
+            if (blockResponseProto.getStatus().equals("Status 400"))
+                return ResponseEntity.badRequest().build();
+            else if (blockResponseProto.getStatus().equals("Status 200"))
                 return ResponseEntity.ok().build();
             return ResponseEntity.internalServerError().build();
         } catch (StatusRuntimeException ex) {
