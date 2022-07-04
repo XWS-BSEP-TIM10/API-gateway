@@ -58,3 +58,11 @@ message PendingRequestProto{
 message PendingResponseProto{
   repeated string userId = 2;
 }
+
+message MutualsResponseProto{
+  repeated string userId = 1;
+}
+
+message ConnectionsProto{
+  string id = 1;
+}

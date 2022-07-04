@@ -6,5 +6,6 @@ import "messagingModel.proto";
 
 service MessagingGrpcService{
   rpc add (ChatMessageProto) returns (ChatMessageResponseProto);
+  rpc findChatMessages (FindChatMessagesProto) returns (FindChatMessagesResponseProto);
   
 }

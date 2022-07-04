@@ -11,4 +11,5 @@ service ConnectionsGrpcService{
   rpc createBlock (CreateBlockRequestProto) returns (BlockResponseProto);
   rpc getRecommendations(RecommendationsProto) returns (RecommendationsResponseProto);
   rpc getPending(PendingRequestProto) returns (PendingResponseProto);
+  rpc getMutuals(ConnectionsProto) returns (MutualsResponseProto);
 }

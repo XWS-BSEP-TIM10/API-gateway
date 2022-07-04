@@ -3,6 +3,7 @@ package com.apigateway.dto;
 import java.util.Date;
 
 public class ChatMessageDTO {
+	   private String id;
 	   private String chatId;
 	   private String senderId;
 	   private String recipientId;
@@ -17,9 +18,10 @@ public class ChatMessageDTO {
 		super();
 	}
 
-	public ChatMessageDTO(String chatId, String senderId, String recipientId, String senderName, String recipientName,
+	public ChatMessageDTO(String id, String chatId, String senderId, String recipientId, String senderName, String recipientName,
 			String content, Date timestamp, String status) {
 		super();
+		this.id = id;
 		this.chatId = chatId;
 		this.senderId = senderId;
 		this.recipientId = recipientId;
@@ -53,6 +55,14 @@ public class ChatMessageDTO {
 	}
 	public String getStatus() {
 		return status;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 	   
 	   
