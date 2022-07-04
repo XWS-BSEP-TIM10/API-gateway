@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
+import proto.RecommendationsResponseProto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -108,4 +109,18 @@ public class ConnectionsController {
         }
     }
 
+    @PreAuthorize("hasAuthority('GET_RECOMMENDED_CONNECTIONS')")
+    @GetMapping("connections/recommendation/{userId}")
+    public ResponseEntity<ConnectionStatusDto> getRecommendedConnections(@PathVariable String userId) {
+        try {
+            RecommendationsResponseProto responseProto = connectionsService.getRecommendations(userId);
+            System.out.println(responseProto);
+            loggerService.recommendationsSucceed(userId);
+            //return ResponseEntity.ok(new ConnectionStatusDto(responseProto.getConnectionStatus()));
+            return null;
+        } catch (StatusRuntimeException ex) {
+            loggerService.recommendationsFailed(userId);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

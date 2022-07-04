@@ -3,14 +3,7 @@ package com.apigateway.service.impl;
 import com.apigateway.service.ConnectionsService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.BlockResponseProto;
-import proto.ConnectionResponseProto;
-import proto.ConnectionStatusProto;
-import proto.ConnectionStatusResponseProto;
-import proto.ConnectionsGrpcServiceGrpc;
-import proto.CreateBlockRequestProto;
-import proto.CreateConnectionRequestProto;
-import proto.RespondConnectionRequestProto;
+import proto.*;
 
 @Component
 public class ConnectionsServiceImpl implements ConnectionsService {
@@ -55,5 +48,13 @@ public class ConnectionsServiceImpl implements ConnectionsService {
                 .setReceiverId(receiverId)
                 .build();
         return this.stub.createBlock(createBlockRequestProto);
+    }
+
+    @Override
+    public RecommendationsResponseProto getRecommendations(String userId) {
+        RecommendationsProto recommendationsProto = RecommendationsProto.newBuilder()
+                .setUserId(userId)
+                .build();
+        return this.stub.getRecommendations(recommendationsProto);
     }
 }
