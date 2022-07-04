@@ -1,5 +1,6 @@
 package com.apigateway.controller;
 
+import com.apigateway.dto.ChatNotificationDTO;
 import com.apigateway.dto.CommentDTO;
 import com.apigateway.dto.CommentResponseDTO;
 import com.apigateway.dto.NewCommentDTO;
@@ -17,6 +18,7 @@ import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,16 +49,18 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private SimpMessagingTemplate messagingTemplate;
 
     private final UserService userService;
 
     private final LoggerService loggerService;
 
     @Autowired
-    public PostController(PostService postService, UserService userService) {
+    public PostController(PostService postService, UserService userService, SimpMessagingTemplate messagingTemplate) {
         this.postService = postService;
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
+        this.messagingTemplate = messagingTemplate;
     }
 
     @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
@@ -66,7 +70,13 @@ public class PostController {
         try {
             AddPostResponseProto addPostResponseProto = postService.addPost(newPostRequestDTO, image);
             NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
+            messagingTemplate.convertAndSendToUser(
+                    "2","/queue/posts",
+                    new ChatNotificationDTO(
+                    		newPostRequestDTO.getOwnerId(),null,null));
             return ResponseEntity.ok(newPostResponseDTO);
+            
+            
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
             return ResponseEntity.internalServerError().build();
