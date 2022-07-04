@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+
+message ChatMessageProto{
+	    string senderId = 1;
+	    string recipientId = 2;
+	    string senderName = 3;
+	    string recipientName = 4;
+	    string content = 5;
+	    string timestamp = 6;
+}
+
+message ChatMessageResponseProto{
+		string id = 1;
+ 	  	string chatId = 2;
+	    string senderId = 3;
+	    string recipientId = 4;
+	    string senderName = 5;
+	    string recipientName = 6;
+	    string content = 7;
+	    string timestamp = 8;
+	    string status = 9;
+	    string HTTPstatus = 10;
+}
+
+message FindChatMessagesProto{
+		string senderId = 1;
+		string recipientId = 2;
+}
+
+message FindChatMessageProto{
+		string id = 1;
+		string chatId = 2;
+	    string senderId = 3;
+	    string recipientId = 4;
+	    string senderName = 5;
+	    string recipientName = 6;
+	    string content = 7;
+	    string timestamp = 8;
+	    string status = 9;
+}
+
+message FindChatMessagesResponseProto{
+		repeated FindChatMessageProto messages = 1;
+		string status = 2;
+}

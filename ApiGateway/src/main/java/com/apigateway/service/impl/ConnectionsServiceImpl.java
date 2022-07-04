@@ -8,9 +8,11 @@ import proto.ConnectionResponseProto;
 import proto.ConnectionStatusProto;
 import proto.ConnectionStatusResponseProto;
 import proto.ConnectionsGrpcServiceGrpc;
+import proto.ConnectionsProto;
 import proto.CreateBlockRequestProto;
 import proto.CreateConnectionRequestProto;
 import proto.CreateConnectionResponseProto;
+import proto.MutualsResponseProto;
 import proto.PendingRequestProto;
 import proto.PendingResponseProto;
 import proto.RecommendationsProto;
@@ -76,5 +78,13 @@ public class ConnectionsServiceImpl implements ConnectionsService {
                 .setUserId(userId)
                 .build();
         return this.stub.getPending(pendingProto);
+    }
+    
+    @Override
+    public MutualsResponseProto getMutuals(String userId) {
+    	ConnectionsProto connectionsProto = ConnectionsProto.newBuilder()
+    			 .setId(userId)
+                 .build();
+    	return this.stub.getMutuals(connectionsProto);
     }
 }

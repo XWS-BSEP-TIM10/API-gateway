@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+import "messagingModel.proto";
+
+service MessagingGrpcService{
+  rpc add (ChatMessageProto) returns (ChatMessageResponseProto);
+  rpc findChatMessages (FindChatMessagesProto) returns (FindChatMessagesResponseProto);
+  
+}

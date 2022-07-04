@@ -24,6 +24,7 @@ import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
 import proto.CreateConnectionResponseProto;
+import proto.MutualsResponseProto;
 import proto.PendingResponseProto;
 import proto.RecommendationsResponseProto;
 import proto.UserNamesResponseProto;
@@ -146,4 +147,18 @@ public class ConnectionsController {
         }
         return ResponseEntity.ok(pendingConnectionResponseDTOS);
     }
+    
+    @PreAuthorize("hasAuthority('GET_RECOMMENDED_CONNECTIONS')")
+    @GetMapping("connections/mutuals/{userId}")
+    public ResponseEntity<List<PendingConnectionResponseDTO>> getMutualConnections(@PathVariable String userId) {
+    	List<PendingConnectionResponseDTO> pendingConnectionResponseDTOS = new ArrayList<>();
+        MutualsResponseProto responseProto = connectionsService.getMutuals(userId);
+        for (String mutualId : responseProto.getUserIdList()) {
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(mutualId);
+            PendingConnectionResponseDTO pendingConnectionResponseDTO = new PendingConnectionResponseDTO(mutualId, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
+            pendingConnectionResponseDTOS.add(pendingConnectionResponseDTO);
+        }
+        return ResponseEntity.ok(pendingConnectionResponseDTOS);
+    }
+    
 }
