@@ -3,7 +3,19 @@ package com.apigateway.service.impl;
 import com.apigateway.service.ConnectionsService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.*;
+import proto.BlockResponseProto;
+import proto.ConnectionResponseProto;
+import proto.ConnectionStatusProto;
+import proto.ConnectionStatusResponseProto;
+import proto.ConnectionsGrpcServiceGrpc;
+import proto.CreateBlockRequestProto;
+import proto.CreateConnectionRequestProto;
+import proto.CreateConnectionResponseProto;
+import proto.PendingRequestProto;
+import proto.PendingResponseProto;
+import proto.RecommendationsProto;
+import proto.RecommendationsResponseProto;
+import proto.RespondConnectionRequestProto;
 
 @Component
 public class ConnectionsServiceImpl implements ConnectionsService {
@@ -13,7 +25,7 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 
 
     @Override
-    public ConnectionResponseProto createConnection(String initiatorId, String receiverId) {
+    public CreateConnectionResponseProto createConnection(String initiatorId, String receiverId) {
         CreateConnectionRequestProto connectionRequestProto = CreateConnectionRequestProto.newBuilder()
                 .setInitiatorId(initiatorId)
                 .setReceiverId(receiverId)
@@ -56,5 +68,13 @@ public class ConnectionsServiceImpl implements ConnectionsService {
                 .setUserId(userId)
                 .build();
         return this.stub.getRecommendations(recommendationsProto);
+    }
+
+    @Override
+    public PendingResponseProto getPending(String userId) {
+        PendingRequestProto pendingProto = PendingRequestProto.newBuilder()
+                .setUserId(userId)
+                .build();
+        return this.stub.getPending(pendingProto);
     }
 }

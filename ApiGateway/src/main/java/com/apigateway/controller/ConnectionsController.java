@@ -3,8 +3,11 @@ package com.apigateway.controller;
 import com.apigateway.dto.BlockRequestDTO;
 import com.apigateway.dto.ConnectionRequestDTO;
 import com.apigateway.dto.ConnectionStatusDto;
+import com.apigateway.dto.CreateConnnectionResponseDTO;
+import com.apigateway.dto.PendingConnectionResponseDTO;
 import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
+import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
 import org.springframework.http.HttpStatus;
@@ -20,10 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
+import proto.CreateConnectionResponseProto;
+import proto.PendingResponseProto;
 import proto.RecommendationsResponseProto;
+import proto.UserNamesResponseProto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -31,21 +39,23 @@ public class ConnectionsController {
 
     private final ConnectionsService connectionsService;
     private final LoggerService loggerService;
+    private final UserService userService;
 
-    public ConnectionsController(ConnectionsService connectionsService) {
+    public ConnectionsController(ConnectionsService connectionsService, UserService userService) {
         this.connectionsService = connectionsService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
+        this.userService = userService;
     }
 
     @PreAuthorize("hasAuthority('CREATE_CONNECTION_PERMISSION')")
     @PostMapping(value = "connections")
-    public ResponseEntity<HttpStatus> connect(@RequestBody @Valid ConnectionRequestDTO newConnectionRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<CreateConnnectionResponseDTO> connect(@RequestBody @Valid ConnectionRequestDTO newConnectionRequestDTO, HttpServletRequest request) {
         try {
-            ConnectionResponseProto connectionResponseProto = connectionsService.createConnection(newConnectionRequestDTO.getInitiatorId(), newConnectionRequestDTO.getReceiverId());
+            CreateConnectionResponseProto connectionResponseProto = connectionsService.createConnection(newConnectionRequestDTO.getInitiatorId(), newConnectionRequestDTO.getReceiverId());
             if (connectionResponseProto.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
             else if (connectionResponseProto.getStatus().equals("Status 200"))
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(new CreateConnnectionResponseDTO(connectionResponseProto.getConnectionStatus()));
             return ResponseEntity.internalServerError().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -122,5 +132,18 @@ public class ConnectionsController {
             loggerService.recommendationsFailed(userId);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PreAuthorize("hasAuthority('GET_PENDING_CONNECTIONS')")
+    @GetMapping("connections/pending/{userId}")
+    public ResponseEntity<List<PendingConnectionResponseDTO>> getPendingConnections(@PathVariable String userId) {
+        List<PendingConnectionResponseDTO> pendingConnectionResponseDTOS = new ArrayList<>();
+        PendingResponseProto responseProto = connectionsService.getPending(userId);
+        for (String pendingUserId : responseProto.getUserIdList()) {
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(pendingUserId);
+            PendingConnectionResponseDTO pendingConnectionResponseDTO = new PendingConnectionResponseDTO(pendingUserId, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
+            pendingConnectionResponseDTOS.add(pendingConnectionResponseDTO);
+        }
+        return ResponseEntity.ok(pendingConnectionResponseDTOS);
     }
 }
