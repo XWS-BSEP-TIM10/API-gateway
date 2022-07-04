@@ -94,6 +94,8 @@ public class PostController {
             RemoveReactionResponseProto responseProto = postService.removeReaction(postId, dto.getUserId());
             if (responseProto.getStatus().equals("Status 404"))
                 return ResponseEntity.notFound().build();
+            if (responseProto.getStatus().equals("Status 400"))
+                return ResponseEntity.badRequest().build();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

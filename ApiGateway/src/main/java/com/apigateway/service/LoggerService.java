@@ -15,4 +15,8 @@ public interface LoggerService {
     void passwordlessLoginSuccess(String ip);
 
     void apiTokenGenerated(String userId);
+
+    void recommendationsSucceed(String userId);
+
+    void recommendationsFailed(String userId);
 }
