@@ -47,4 +47,14 @@ public class LoggerServiceImpl implements LoggerService {
     public void apiTokenGenerated(String userId) {
         logger.info("API token successfully generated. User id: {}", userId);
     }
+
+    @Override
+    public void recommendationsSucceed(String userId) {
+        logger.info("Recommendations successfully gotten. User id: {}", userId);
+    }
+
+    @Override
+    public void recommendationsFailed(String userId) {
+        logger.warn("Recommendations failed. User id: {}", userId);
+    }
 }
