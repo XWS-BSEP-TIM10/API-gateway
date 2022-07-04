@@ -3,6 +3,7 @@ package com.apigateway.service;
 import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
+import proto.RecommendationsResponseProto;
 
 public interface ConnectionsService {
     ConnectionResponseProto createConnection(String initiatorId, String connectingId);
@@ -12,4 +13,6 @@ public interface ConnectionsService {
     ConnectionStatusResponseProto getConnectionStatus(String initiatorId, String receiverId);
 
     BlockResponseProto createBlock(String initiatorId, String connectingId);
+
+    RecommendationsResponseProto getRecommendations(String userId);
 }
