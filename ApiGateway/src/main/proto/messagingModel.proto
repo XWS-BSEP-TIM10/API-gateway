@@ -5,14 +5,12 @@ package proto;
 
 
 message ChatMessageProto{
- 	  	string chatId = 1;
-	    string senderId = 2;
-	    string recipientId = 3;
-	    string senderName = 4;
-	    string recipientName = 5;
-	    string content = 6;
-	    string timestamp = 7;
-	    string status = 8;
+	    string senderId = 1;
+	    string recipientId = 2;
+	    string senderName = 3;
+	    string recipientName = 4;
+	    string content = 5;
+	    string timestamp = 6;
 }
 
 message ChatMessageResponseProto{

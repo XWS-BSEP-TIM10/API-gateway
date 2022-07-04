@@ -21,7 +21,7 @@ public class MessagingServiceImpl implements MessagingService{
 	private MessagingGrpcServiceGrpc.MessagingGrpcServiceBlockingStub stub;
 	@Override
 	public ChatMessageResponseProto add(ChatMessageDTO dto) {
-		ChatMessageProto chatMessageProto = ChatMessageProto.newBuilder().setChatId(dto.getChatId()).setSenderId(dto.getSenderId()).setRecipientId(dto.getRecipientId()).setSenderName(dto.getSenderName()).setRecipientName(dto.getRecipientName()).setContent(dto.getContent()).setTimestamp(iso8601Formatter.format(dto.getTimestamp())).setStatus(dto.getStatus()).build();
+		ChatMessageProto chatMessageProto = ChatMessageProto.newBuilder().setSenderId(dto.getSenderId()).setRecipientId(dto.getRecipientId()).setSenderName(dto.getSenderName()).setRecipientName(dto.getRecipientName()).setContent(dto.getContent()).setTimestamp(iso8601Formatter.format(dto.getTimestamp())).build();
 		return this.stub.add(chatMessageProto);
 	}
 }
