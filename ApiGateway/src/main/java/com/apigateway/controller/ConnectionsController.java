@@ -54,7 +54,7 @@ public class ConnectionsController {
 
     @PreAuthorize("hasAuthority('CREATE_BLOCK_PERMISSION')")
     @PostMapping(value = "connections/block")
-    public ResponseEntity<HttpStatus> connect(@RequestBody @Valid BlockRequestDTO blockRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<HttpStatus> block(@RequestBody @Valid BlockRequestDTO blockRequestDTO, HttpServletRequest request) {
         try {
             BlockResponseProto blockResponseProto = connectionsService.createBlock(blockRequestDTO.getInitiatorId(), blockRequestDTO.getReceiverId());
             if (blockResponseProto.getStatus().equals("Status 400"))
