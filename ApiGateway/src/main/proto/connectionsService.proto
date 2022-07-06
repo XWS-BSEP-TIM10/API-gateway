@@ -12,4 +12,5 @@ service ConnectionsGrpcService{
   rpc getRecommendations(RecommendationsProto) returns (RecommendationsResponseProto);
   rpc getPending(PendingRequestProto) returns (PendingResponseProto);
   rpc getMutuals(ConnectionsProto) returns (MutualsResponseProto);
+  rpc getFollowers(ConnectionsProto) returns (ConnectionsResponseProto);
 }

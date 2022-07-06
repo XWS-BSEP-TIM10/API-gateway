@@ -3,6 +3,7 @@ package com.apigateway.service;
 import proto.BlockResponseProto;
 import proto.ConnectionResponseProto;
 import proto.ConnectionStatusResponseProto;
+import proto.ConnectionsResponseProto;
 import proto.CreateConnectionResponseProto;
 import proto.MutualsResponseProto;
 import proto.PendingResponseProto;
@@ -22,4 +23,6 @@ public interface ConnectionsService {
     PendingResponseProto getPending(String userId);
     
     MutualsResponseProto getMutuals(String userId);
+    
+    ConnectionsResponseProto getFollowers (String userId);
 }

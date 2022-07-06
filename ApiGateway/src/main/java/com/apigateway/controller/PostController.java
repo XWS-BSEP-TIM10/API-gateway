@@ -10,6 +10,7 @@ import com.apigateway.dto.PostsResponseDTO;
 import com.apigateway.dto.ReactionDTO;
 import com.apigateway.dto.RemoveReactionDTO;
 import com.apigateway.mapper.PostMapper;
+import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.PostService;
 import com.apigateway.service.UserService;
@@ -33,6 +34,7 @@ import proto.AddPostResponseProto;
 import proto.AddReactionResponseProto;
 import proto.CommentPostResponseProto;
 import proto.CommentProto;
+import proto.ConnectionsResponseProto;
 import proto.PostProto;
 import proto.RemoveReactionResponseProto;
 import proto.UserNamesResponseProto;
@@ -54,13 +56,16 @@ public class PostController {
     private final UserService userService;
 
     private final LoggerService loggerService;
+    
+    private final ConnectionsService connectionsService;
 
     @Autowired
-    public PostController(PostService postService, UserService userService, SimpMessagingTemplate messagingTemplate) {
+    public PostController(PostService postService, UserService userService, SimpMessagingTemplate messagingTemplate,ConnectionsService connectionsService) {
         this.postService = postService;
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
         this.messagingTemplate = messagingTemplate;
+        this.connectionsService = connectionsService;
     }
 
     @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
@@ -69,11 +74,18 @@ public class PostController {
                                                       @RequestPart("image") MultipartFile image, HttpServletRequest request) throws IOException {
         try {
             AddPostResponseProto addPostResponseProto = postService.addPost(newPostRequestDTO, image);
+            ConnectionsResponseProto connectionsResponseProto= connectionsService.getFollowers(newPostRequestDTO.getOwnerId());
             NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
-            messagingTemplate.convertAndSendToUser(
+            for(String tempUserId: connectionsResponseProto.getConnectionsList()) {
+            	messagingTemplate.convertAndSendToUser(
+                        tempUserId,"/queue/posts",
+                        new ChatNotificationDTO(
+                        		newPostRequestDTO.getOwnerId(),null,null));
+            }
+            /*messagingTemplate.convertAndSendToUser(
                     "2","/queue/posts",
                     new ChatNotificationDTO(
-                    		newPostRequestDTO.getOwnerId(),null,null));
+                    		newPostRequestDTO.getOwnerId(),null,null));*/
             return ResponseEntity.ok(newPostResponseDTO);
             
             
