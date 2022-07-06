@@ -75,17 +75,14 @@ public class PostController {
         try {
             AddPostResponseProto addPostResponseProto = postService.addPost(newPostRequestDTO, image);
             ConnectionsResponseProto connectionsResponseProto= connectionsService.getFollowers(newPostRequestDTO.getOwnerId());
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(newPostRequestDTO.getOwnerId());
             NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
             for(String tempUserId: connectionsResponseProto.getConnectionsList()) {
             	messagingTemplate.convertAndSendToUser(
                         tempUserId,"/queue/posts",
                         new ChatNotificationDTO(
-                        		newPostRequestDTO.getOwnerId(),null,null));
+                        		newPostRequestDTO.getOwnerId(),newPostRequestDTO.getOwnerId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
             }
-            /*messagingTemplate.convertAndSendToUser(
-                    "2","/queue/posts",
-                    new ChatNotificationDTO(
-                    		newPostRequestDTO.getOwnerId(),null,null));*/
             return ResponseEntity.ok(newPostResponseDTO);
             
             
