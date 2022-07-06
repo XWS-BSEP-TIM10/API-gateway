@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+import "notificationModel.proto";
+
+service NotificationGrpcService{
+  rpc add (NewNotificationProto) returns (NotificationResponseProto);
+  rpc getNotifications (GetNotificationProto) returns (NotificationsProto);
+
+}

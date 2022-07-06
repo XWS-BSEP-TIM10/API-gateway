@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package proto;
+
+message NewNotificationProto{
+  string userId = 1;
+  string text = 2;
+}
+
+message GetNotificationProto {
+  string userId = 1;
+}
+
+message NotificationProto {
+  string id = 1;
+  string text = 2;
+  bool read = 3;
+  string creationTime = 4;
+}
+
+message NotificationResponseProto {
+    string status = 2;
+}
+
+message NotificationsProto {
+  repeated NotificationProto notifications = 1;
+  string status = 2;
+}
