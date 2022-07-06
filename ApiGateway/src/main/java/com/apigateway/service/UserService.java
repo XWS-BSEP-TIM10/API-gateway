@@ -1,12 +1,10 @@
 package com.apigateway.service;
 
 import com.apigateway.dto.UpdateUserDTO;
-import proto.EmailResponseProto;
-import proto.FindUserResponseProto;
-import proto.IdResponseProto;
-import proto.UpdateUserResponseProto;
-import proto.UserNamesResponseProto;
-import proto.UserResponseProto;
+import com.apigateway.model.User;
+import proto.*;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -25,4 +23,6 @@ public interface UserService {
     String getIdByToken(String token);
 
     String getUserIdByToken(String token);
+
+    FindUserResponseProto findUsersByIds(RecommendationsResponseProto ids);
 }

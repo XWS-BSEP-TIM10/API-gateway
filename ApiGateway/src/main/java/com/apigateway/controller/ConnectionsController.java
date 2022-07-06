@@ -1,10 +1,6 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.BlockRequestDTO;
-import com.apigateway.dto.ConnectionRequestDTO;
-import com.apigateway.dto.ConnectionStatusDto;
-import com.apigateway.dto.CreateConnnectionResponseDTO;
-import com.apigateway.dto.PendingConnectionResponseDTO;
+import com.apigateway.dto.*;
 import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
@@ -20,14 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import proto.BlockResponseProto;
-import proto.ConnectionResponseProto;
-import proto.ConnectionStatusResponseProto;
-import proto.CreateConnectionResponseProto;
-import proto.MutualsResponseProto;
-import proto.PendingResponseProto;
-import proto.RecommendationsResponseProto;
-import proto.UserNamesResponseProto;
+import proto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -122,13 +111,17 @@ public class ConnectionsController {
 
     @PreAuthorize("hasAuthority('GET_RECOMMENDED_CONNECTIONS')")
     @GetMapping("connections/recommendation/{userId}")
-    public ResponseEntity<ConnectionStatusDto> getRecommendedConnections(@PathVariable String userId) {
+    public ResponseEntity<List<UserDto>> getRecommendedConnections(@PathVariable String userId) {
         try {
             RecommendationsResponseProto responseProto = connectionsService.getRecommendations(userId);
-            System.out.println(responseProto);
+            FindUserResponseProto recommendations = userService.findUsersByIds(responseProto);
             loggerService.recommendationsSucceed(userId);
-            //return ResponseEntity.ok(new ConnectionStatusDto(responseProto.getConnectionStatus()));
-            return null;
+            List<UserDto> users = new ArrayList<>();
+            for (UserProto userProto : recommendations.getUsersList()) {
+                UserDto dto = new UserDto(userProto);
+                users.add(dto);
+            }
+            return ResponseEntity.ok(users);
         } catch (StatusRuntimeException ex) {
             loggerService.recommendationsFailed(userId);
             return ResponseEntity.internalServerError().build();
