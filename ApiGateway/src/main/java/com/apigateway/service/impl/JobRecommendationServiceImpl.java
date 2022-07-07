@@ -29,4 +29,10 @@ public class JobRecommendationServiceImpl implements JobRecommendationService {
         return this.stub.addJob(requestProto);
     }
 
+    @Override
+    public JobAdRecommendationsResponseProto findRecommendations(String userId) {
+        UserIdRequestProto requestProto = UserIdRequestProto.newBuilder().setUserId(userId).build();
+        return this.stub.findRecommendations(requestProto);
+    }
+
 }

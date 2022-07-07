@@ -71,3 +71,4 @@ message ConnectionsResponseProto{
   repeated string connections = 1;
   string status = 2;
 }
+

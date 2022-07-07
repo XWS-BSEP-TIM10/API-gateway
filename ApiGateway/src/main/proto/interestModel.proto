@@ -31,3 +31,12 @@ message JobAdRequestProto {
   string company = 5;
   repeated string requirements = 6;
 }
+
+message UserIdRequestProto{
+  string userId = 1;
+}
+
+message JobAdRecommendationsResponseProto{
+  repeated JobAdRequestProto recommendations = 1;
+  string status = 2;
+}

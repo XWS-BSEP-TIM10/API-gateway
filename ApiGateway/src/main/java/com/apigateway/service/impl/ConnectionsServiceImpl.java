@@ -96,4 +96,12 @@ public class ConnectionsServiceImpl implements ConnectionsService {
                 .build();
    	return this.stub.getFollowers(connectionsProto);
     }
+
+    @Override
+    public ConnectionsResponseProto getConnections(String userId) {
+        ConnectionsProto connectionsProto = ConnectionsProto.newBuilder()
+                .setId(userId)
+                .build();
+        return this.stub.getConnections(connectionsProto);
+    }
 }
