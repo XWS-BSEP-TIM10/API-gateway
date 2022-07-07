@@ -3,6 +3,7 @@ package com.apigateway.controller;
 import com.apigateway.dto.InterestDTO;
 import com.apigateway.dto.NewInterestDTO;
 import com.apigateway.service.InterestService;
+import com.apigateway.service.JobRecommendationService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
@@ -29,9 +30,12 @@ public class InterestController {
 
     private final LoggerService loggerService;
 
+    private final JobRecommendationService jobRecommendationService;
+
     @Autowired
-    public InterestController(InterestService interestService) {
+    public InterestController(InterestService interestService, JobRecommendationService jobRecommendationService) {
         this.interestService = interestService;
+        this.jobRecommendationService = jobRecommendationService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
@@ -40,7 +44,8 @@ public class InterestController {
     public ResponseEntity<InterestDTO> add(@RequestBody NewInterestDTO dto, HttpServletRequest request) {
         try {
             NewInterestResponseProto response = interestService.add(dto);
-            if (response.getStatus().equals("Status 404"))
+            RemoveInterestResponseProto jobRecommendationResponse = jobRecommendationService.add(dto);
+            if (response.getStatus().equals("Status 404") || jobRecommendationResponse.getStatus().equals("Status 500"))
                 return ResponseEntity.notFound().build();
             return ResponseEntity.ok(new InterestDTO(response));
         } catch (StatusRuntimeException ex) {
