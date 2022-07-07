@@ -7,5 +7,6 @@ import "notificationModel.proto";
 service NotificationGrpcService{
   rpc add (NewNotificationProto) returns (NotificationResponseProto);
   rpc getNotifications (GetNotificationProto) returns (NotificationsProto);
-
+  rpc changeNotificationsStatus (GetNotificationProto) returns (NotificationResponseProto);
+  rpc addPostNotification (NewPostNotificationProto) returns (NotificationResponseProto);
 }

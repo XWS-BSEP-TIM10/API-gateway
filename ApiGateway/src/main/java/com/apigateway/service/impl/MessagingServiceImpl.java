@@ -3,6 +3,8 @@ package com.apigateway.service.impl;
 import java.text.SimpleDateFormat;
 
 import com.apigateway.service.NotificationService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.apigateway.dto.ChatMessageDTO;
@@ -20,7 +22,8 @@ public class MessagingServiceImpl implements MessagingService{
 	
 	@GrpcClient("messaginggrpcservice")
 	private MessagingGrpcServiceGrpc.MessagingGrpcServiceBlockingStub stub;
-
+	
+	@Autowired
 	public MessagingServiceImpl(NotificationService notificationService) {
 		this.notificationService = notificationService;
 	}
@@ -33,7 +36,7 @@ public class MessagingServiceImpl implements MessagingService{
 				.setTimestamp(iso8601Formatter.format(dto.getTimestamp())).build();
 
 		NewNotificationProto newNotificationProto = NewNotificationProto.newBuilder().setUserId(dto.getRecipientId())
-				.setText("You've received a new message from "+ dto.getSenderName() + "!").build();
+				.setText("New message from "+ dto.getSenderName() + "!").build();
 		notificationService.add(newNotificationProto);
 		return this.stub.add(chatMessageProto);
 	}

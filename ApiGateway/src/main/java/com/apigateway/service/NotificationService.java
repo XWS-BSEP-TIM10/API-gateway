@@ -1,6 +1,7 @@
 package com.apigateway.service;
 
-import proto.GetNotificationProto;
+import java.util.List;
+
 import proto.NewNotificationProto;
 import proto.NotificationResponseProto;
 import proto.NotificationsProto;
@@ -8,6 +9,8 @@ import proto.NotificationsProto;
 public interface NotificationService {
 
     NotificationResponseProto add(NewNotificationProto newNotificationProto);
-    NotificationsProto getNotifications (GetNotificationProto getNotificationProto);
+    NotificationsProto getNotifications(String userId);
+    NotificationResponseProto changeNotificationsStatus (String userId);
+    NotificationResponseProto addPostNotification(List<String> usersId, String postingPersonFullName);
 }
 

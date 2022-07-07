@@ -1,16 +1,22 @@
 package com.apigateway.service.impl;
 
-import com.apigateway.service.NotificationService;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.stereotype.Service;
-import proto.*;
+import java.util.List;
 
-import java.text.SimpleDateFormat;
+import org.springframework.stereotype.Service;
+
+import com.apigateway.service.NotificationService;
+
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import proto.GetNotificationProto;
+import proto.NewNotificationProto;
+import proto.NewPostNotificationProto;
+import proto.NotificationGrpcServiceGrpc;
+import proto.NotificationResponseProto;
+import proto.NotificationsProto;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-    private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     @GrpcClient("profilegrpcservice")
     private NotificationGrpcServiceGrpc.NotificationGrpcServiceBlockingStub stub;
@@ -21,7 +27,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationsProto getNotifications(GetNotificationProto getNotificationProto) {
-        return null;
+    public NotificationsProto getNotifications(String userId) {
+    	GetNotificationProto getNotificationProto = GetNotificationProto.newBuilder().setUserId(userId).build();
+        return this.stub.getNotifications(getNotificationProto);
+    }
+
+	@Override
+	public NotificationResponseProto changeNotificationsStatus(String userId) {
+		GetNotificationProto getNotificationProto = GetNotificationProto.newBuilder().setUserId(userId).build();
+		return this.stub.changeNotificationsStatus(getNotificationProto);
+	}
+	
+	@Override
+    public NotificationResponseProto addPostNotification(List<String> usersId, String postingPersonFullName) {
+		NewPostNotificationProto newPostNotificationProto = NewPostNotificationProto.newBuilder().addAllUserId(usersId).setText(postingPersonFullName+" has created a new post.").build();
+        return this.stub.addPostNotification(newPostNotificationProto);
     }
 }

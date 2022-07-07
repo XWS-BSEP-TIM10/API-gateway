@@ -27,3 +27,8 @@ message NotificationsProto {
   repeated NotificationProto notifications = 1;
   string status = 2;
 }
+
+message NewPostNotificationProto{
+  repeated string userId = 1;
+  string text = 2;
+}
