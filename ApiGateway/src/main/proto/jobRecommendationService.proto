@@ -6,4 +6,5 @@ import "interestModel.proto";
 
 service JobRecommendationGrpcService{
   rpc add (NewInterestProto) returns (RemoveInterestResponseProto);
+  rpc addJob(JobAdRequestProto) returns(RemoveInterestResponseProto);
 }

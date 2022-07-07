@@ -1,5 +1,6 @@
 package com.apigateway.service.impl;
 
+import com.apigateway.dto.CreateJobAdRequestDTO;
 import com.apigateway.dto.NewInterestDTO;
 import com.apigateway.service.JobRecommendationService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -18,6 +19,14 @@ public class JobRecommendationServiceImpl implements JobRecommendationService {
                                                                     .setDescription(dto.getDescription())
                                                                     .build();
         return this.stub.add(requestProto);
+    }
+
+    @Override
+    public RemoveInterestResponseProto addJobAd(CreateJobAdRequestDTO dto, String userId) {
+        JobAdRequestProto requestProto = JobAdRequestProto.newBuilder().setUserId(userId).setTitle(dto.getTitle())
+                .setPosition(dto.getPosition()).setDescription(dto.getDescription())
+                .setCompany(dto.getCompany()).addAllRequirements(dto.getRequirements()).build();
+        return this.stub.addJob(requestProto);
     }
 
 }

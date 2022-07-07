@@ -45,8 +45,10 @@ public class InterestController {
         try {
             NewInterestResponseProto response = interestService.add(dto);
             RemoveInterestResponseProto jobRecommendationResponse = jobRecommendationService.add(dto);
-            if (response.getStatus().equals("Status 404") || jobRecommendationResponse.getStatus().equals("Status 500"))
+            if (response.getStatus().equals("Status 404"))
                 return ResponseEntity.notFound().build();
+            if( jobRecommendationResponse.getStatus().equals("Status 500"))
+                return ResponseEntity.internalServerError().build();
             return ResponseEntity.ok(new InterestDTO(response));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

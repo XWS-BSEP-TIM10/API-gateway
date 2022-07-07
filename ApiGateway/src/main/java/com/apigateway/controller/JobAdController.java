@@ -5,6 +5,7 @@ import com.apigateway.dto.CreateJobAdResponseDTO;
 import com.apigateway.dto.JobAdDTO;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.JobAdService;
+import com.apigateway.service.JobRecommendationService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import proto.GetJobAdsResponseProto;
 import proto.JobAdResponseProto;
+import proto.RemoveInterestResponseProto;
 import proto.UserJobAdProto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,9 +39,12 @@ public class JobAdController {
 
     private final LoggerService loggerService;
 
-    public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils) {
+    private final JobRecommendationService jobRecommendationService;
+
+    public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils, JobRecommendationService jobRecommendationService) {
         this.jobAdService = jobAdService;
         this.tokenUtils = tokenUtils;
+        this.jobRecommendationService = jobRecommendationService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
@@ -53,8 +58,9 @@ public class JobAdController {
             if (agentToken != null) userId = tokenUtils.getUserIdFromToken(agentToken);
             else userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));
             JobAdResponseProto response = jobAdService.add(createDto, userId);
+            RemoveInterestResponseProto recommendationResponse = jobRecommendationService.addJobAd(createDto, userId);
             if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
-            if (response.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
+            if (response.getStatus().equals("Status 500") || recommendationResponse.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
             return ResponseEntity.ok(new CreateJobAdResponseDTO(response));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
