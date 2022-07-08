@@ -16,7 +16,8 @@ import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,6 +56,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final LoggerService loggerService;
+    private final Counter httpRequests;
 
     private static final String CONFLICT_STATUS = "Status 409";
     private static final String TEAPOT_STATUS = "Status 418";
@@ -62,16 +64,19 @@ public class AuthController {
     private static final String BAD_REQUEST_STATUS = "Status 400";
     private static final String TOKEN_EXPIRED = "Token expired";
 
-    @Autowired
-    public AuthController(AuthService authService, UserService userService) {
+    public AuthController(AuthService authService, UserService userService, MeterRegistry registry) {
         this.authService = authService;
         this.userService = userService;
+        this.httpRequests = Counter.builder("http_request")
+                .description("Number of HTTP requests for server endpoints")
+                .register(registry);
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
     @PostMapping("/signup")
     public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO, HttpServletRequest request) {
         try {
+            this.httpRequests.increment();
             newUserDTO.setId(userService.getId(newUserDTO.getEmail()).getId());
             NewUserResponseProto response = authService.signUp(newUserDTO);
             if (response.getStatus().equals(BAD_REQUEST_STATUS))
