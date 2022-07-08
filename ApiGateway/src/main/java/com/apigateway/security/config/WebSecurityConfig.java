@@ -99,6 +99,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/metrics/**").permitAll()
                 .antMatchers("/actuator/**").permitAll()
+                .antMatchers("/error/**").permitAll()
 
                 // ukoliko ne zelimo da koristimo @PreAuthorize anotacije nad metodama kontrolera, moze se iskoristiti hasRole() metoda da se ogranici
                 // koji tip korisnika moze da pristupi odgovarajucoj ruti. Npr. ukoliko zelimo da definisemo da ruti 'admin' moze da pristupi
@@ -140,7 +141,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
                 "/**/*.css", "/**/*.js", "/api/v1/profiles/find", "/api/v1/auth/confirm/*", "/api/v1/auth/recover/*", "/api/v1/auth/login/passwordless/*", "/api/v1/auth/checkToken/*", "/ws/**");
         
-        web.ignoring().antMatchers("/actuator/**", "/metrics/**");
+        web.ignoring().antMatchers("/actuator/**", "/metrics/**","/error/**");
     
     }
 
