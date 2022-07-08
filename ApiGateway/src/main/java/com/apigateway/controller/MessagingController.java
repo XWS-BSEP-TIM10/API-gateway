@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.apigateway.dto.ChatMessageDTO;
 import com.apigateway.dto.ChatNotificationDTO;
 
-import proto.ChatMessageResponseProto;
-import proto.FindChatMessageProto;
-import proto.FindChatMessagesResponseProto;
-import proto.UserNamesResponseProto;
+import proto.*;
 
 import com.apigateway.service.MessagingService;
 import com.apigateway.service.UserService;

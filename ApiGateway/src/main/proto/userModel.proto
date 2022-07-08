@@ -98,3 +98,7 @@ message UserResponseProto{
   UserProto user = 1;
   string status = 2;
 }
+
+message  UserIdsProto{
+  repeated string id = 1;
+}

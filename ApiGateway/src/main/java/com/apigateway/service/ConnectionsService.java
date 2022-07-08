@@ -1,12 +1,6 @@
 package com.apigateway.service;
 
-import proto.BlockResponseProto;
-import proto.ConnectionResponseProto;
-import proto.ConnectionStatusResponseProto;
-import proto.CreateConnectionResponseProto;
-import proto.MutualsResponseProto;
-import proto.PendingResponseProto;
-import proto.RecommendationsResponseProto;
+import proto.*;
 
 public interface ConnectionsService {
     CreateConnectionResponseProto createConnection(String initiatorId, String connectingId);
@@ -22,4 +16,9 @@ public interface ConnectionsService {
     PendingResponseProto getPending(String userId);
     
     MutualsResponseProto getMutuals(String userId);
+    
+    ConnectionsResponseProto getFollowers (String userId);
+
+    ConnectionsResponseProto getConnections(String userId);
+
 }
