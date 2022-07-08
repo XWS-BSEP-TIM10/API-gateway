@@ -10,7 +10,9 @@ import com.apigateway.dto.PostsResponseDTO;
 import com.apigateway.dto.ReactionDTO;
 import com.apigateway.dto.RemoveReactionDTO;
 import com.apigateway.mapper.PostMapper;
+import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
+import com.apigateway.service.NotificationService;
 import com.apigateway.service.PostService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
@@ -33,6 +35,8 @@ import proto.AddPostResponseProto;
 import proto.AddReactionResponseProto;
 import proto.CommentPostResponseProto;
 import proto.CommentProto;
+import proto.ConnectionsResponseProto;
+import proto.NotificationResponseProto;
 import proto.PostProto;
 import proto.RemoveReactionResponseProto;
 import proto.UserNamesResponseProto;
@@ -54,13 +58,19 @@ public class PostController {
     private final UserService userService;
 
     private final LoggerService loggerService;
+    
+    private final ConnectionsService connectionsService;
+    
+    private final NotificationService notificationService;
 
     @Autowired
-    public PostController(PostService postService, UserService userService, SimpMessagingTemplate messagingTemplate) {
+    public PostController(PostService postService, UserService userService, SimpMessagingTemplate messagingTemplate,ConnectionsService connectionsService,NotificationService notificationService) {
         this.postService = postService;
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
         this.messagingTemplate = messagingTemplate;
+        this.connectionsService = connectionsService;
+        this.notificationService = notificationService;
     }
 
     @PreAuthorize("hasAuthority('CREATE_POST_PERMISSION')")
@@ -69,11 +79,16 @@ public class PostController {
                                                       @RequestPart("image") MultipartFile image, HttpServletRequest request) throws IOException {
         try {
             AddPostResponseProto addPostResponseProto = postService.addPost(newPostRequestDTO, image);
+            ConnectionsResponseProto connectionsResponseProto= connectionsService.getFollowers(newPostRequestDTO.getOwnerId());
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(newPostRequestDTO.getOwnerId());
+            NotificationResponseProto notificationResponseProto = notificationService.addPostNotification(connectionsResponseProto.getConnectionsList(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName());
             NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
-            messagingTemplate.convertAndSendToUser(
-                    "2","/queue/posts",
-                    new ChatNotificationDTO(
-                    		newPostRequestDTO.getOwnerId(),null,null));
+            for(String tempUserId: connectionsResponseProto.getConnectionsList()) {
+            	messagingTemplate.convertAndSendToUser(
+                        tempUserId,"/queue/posts",
+                        new ChatNotificationDTO(
+                        		newPostRequestDTO.getOwnerId(),newPostRequestDTO.getOwnerId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
+            }
             return ResponseEntity.ok(newPostResponseDTO);
             
             

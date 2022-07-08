@@ -11,4 +11,5 @@ service UserGrpcService{
   rpc getEmail(EmailProto) returns (EmailResponseProto);
   rpc getId(IdProto) returns (IdResponseProto);
   rpc getById(UserIdProto) returns (UserResponseProto);
+  rpc findProfilesById (UserIdsProto) returns (FindUserResponseProto);
 }

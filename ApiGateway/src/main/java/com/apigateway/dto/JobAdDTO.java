@@ -1,7 +1,9 @@
 package com.apigateway.dto;
 
+import proto.JobAdRequestProto;
 import proto.UserJobAdProto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JobAdDTO {
@@ -49,6 +51,22 @@ public class JobAdDTO {
         this.creationDate = jobAd.getCreationDate();
         this.company = jobAd.getCompany();
         this.requirements = jobAd.getRequirementsList();
+    }
+
+    public JobAdDTO(JobAdRequestProto jobAd, String firstName, String lastName) {
+        this.userId = jobAd.getUserId();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.title = jobAd.getTitle();
+        this.position = jobAd.getPosition();
+        this.description = jobAd.getDescription();
+        this.company = jobAd.getCompany();
+        this.requirements = new ArrayList<>();
+        for(String requirement : jobAd.getRequirementsList()){
+            if(!requirement.equals(jobAd.getPosition())){
+                this.requirements.add(requirement);
+            }
+        }
     }
 
     public String getUserId() {

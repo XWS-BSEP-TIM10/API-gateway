@@ -9,6 +9,7 @@ import proto.ConnectionStatusProto;
 import proto.ConnectionStatusResponseProto;
 import proto.ConnectionsGrpcServiceGrpc;
 import proto.ConnectionsProto;
+import proto.ConnectionsResponseProto;
 import proto.CreateBlockRequestProto;
 import proto.CreateConnectionRequestProto;
 import proto.CreateConnectionResponseProto;
@@ -86,5 +87,21 @@ public class ConnectionsServiceImpl implements ConnectionsService {
     			 .setId(userId)
                  .build();
     	return this.stub.getMutuals(connectionsProto);
+    }
+    
+    @Override
+    public ConnectionsResponseProto getFollowers (String userId) {
+    	ConnectionsProto connectionsProto = ConnectionsProto.newBuilder()
+    			.setId(userId)
+                .build();
+   	return this.stub.getFollowers(connectionsProto);
+    }
+
+    @Override
+    public ConnectionsResponseProto getConnections(String userId) {
+        ConnectionsProto connectionsProto = ConnectionsProto.newBuilder()
+                .setId(userId)
+                .build();
+        return this.stub.getConnections(connectionsProto);
     }
 }

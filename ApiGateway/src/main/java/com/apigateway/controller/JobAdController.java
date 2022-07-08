@@ -4,8 +4,11 @@ import com.apigateway.dto.CreateJobAdRequestDTO;
 import com.apigateway.dto.CreateJobAdResponseDTO;
 import com.apigateway.dto.JobAdDTO;
 import com.apigateway.security.util.TokenUtils;
+import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.JobAdService;
+import com.apigateway.service.JobRecommendationService;
 import com.apigateway.service.LoggerService;
+import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import proto.GetJobAdsResponseProto;
-import proto.JobAdResponseProto;
-import proto.UserJobAdProto;
+import proto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -37,9 +38,18 @@ public class JobAdController {
 
     private final LoggerService loggerService;
 
-    public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils) {
+    private final JobRecommendationService jobRecommendationService;
+
+    private final UserService userService;
+
+    private final ConnectionsService connectionsService;
+
+    public JobAdController(JobAdService jobAdService, TokenUtils tokenUtils, JobRecommendationService jobRecommendationService, UserService userService, ConnectionsService connectionsService) {
         this.jobAdService = jobAdService;
         this.tokenUtils = tokenUtils;
+        this.jobRecommendationService = jobRecommendationService;
+        this.userService = userService;
+        this.connectionsService = connectionsService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
@@ -53,8 +63,9 @@ public class JobAdController {
             if (agentToken != null) userId = tokenUtils.getUserIdFromToken(agentToken);
             else userId = tokenUtils.getUsernameFromToken(jwtToken.substring(7));
             JobAdResponseProto response = jobAdService.add(createDto, userId);
+            RemoveInterestResponseProto recommendationResponse = jobRecommendationService.addJobAd(createDto, userId);
             if (response.getStatus().equals("Status 404")) return ResponseEntity.notFound().build();
-            if (response.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
+            if (response.getStatus().equals("Status 500") || recommendationResponse.getStatus().equals("Status 500")) return ResponseEntity.internalServerError().build();
             return ResponseEntity.ok(new CreateJobAdResponseDTO(response));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -94,6 +105,28 @@ public class JobAdController {
             return ResponseEntity.ok(jobAds);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PreAuthorize("hasAuthority('GET_JOB_ADS')")
+    @GetMapping("job-ads/recommendations/{userId}")
+    public ResponseEntity<List<JobAdDTO>> getJobAds(@PathVariable String userId) {
+        try {
+            JobAdRecommendationsResponseProto response = jobRecommendationService.findRecommendations(userId);
+            List<JobAdDTO> jobAds = new ArrayList<>();
+            for (JobAdRequestProto jobAd : response.getRecommendationsList()) {
+                ConnectionsResponseProto connectionsResponseProto = connectionsService.getConnections(userId);
+                for(String id : connectionsResponseProto.getConnectionsList()){
+                    if(id.equals(jobAd.getUserId())){
+                        UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(userId);
+                        JobAdDTO jobAdDto = new JobAdDTO(jobAd, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
+                        jobAds.add(jobAdDto);
+                    }
+                }
+            }
+            return ResponseEntity.ok(jobAds);
+        } catch (StatusRuntimeException ex) {
             return ResponseEntity.internalServerError().build();
         }
     }

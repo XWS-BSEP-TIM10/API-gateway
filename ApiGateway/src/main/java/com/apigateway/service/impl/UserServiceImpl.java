@@ -1,24 +1,16 @@
 package com.apigateway.service.impl;
 
 import com.apigateway.dto.UpdateUserDTO;
+import com.apigateway.model.User;
 import com.apigateway.security.util.TokenUtils;
 import com.apigateway.service.UserService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import proto.EmailProto;
-import proto.EmailResponseProto;
-import proto.FindUserProto;
-import proto.FindUserResponseProto;
-import proto.IdProto;
-import proto.IdResponseProto;
-import proto.UpdateUserProto;
-import proto.UpdateUserResponseProto;
-import proto.UserGrpcServiceGrpc;
-import proto.UserIdProto;
-import proto.UserNamesProto;
-import proto.UserNamesResponseProto;
-import proto.UserResponseProto;
+import proto.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class UserServiceImpl implements UserService {
@@ -75,5 +67,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getUserIdByToken(String token) {
         return tokenUtils.getUserIdFromToken(token);
+    }
+
+    @Override
+    public FindUserResponseProto findUsersByIds(RecommendationsResponseProto ids) {
+        List<String> idsList = new ArrayList<>();
+        for(String id : ids.getUserIdList()){idsList.add(id);}
+        UserIdsProto idsProto = UserIdsProto.newBuilder().addAllId(idsList).build();
+        return this.stub.findProfilesById(idsProto);
     }
 }

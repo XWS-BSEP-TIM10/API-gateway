@@ -3,6 +3,7 @@ package com.apigateway.controller;
 import com.apigateway.dto.ExperienceDTO;
 import com.apigateway.dto.NewExperienceDTO;
 import com.apigateway.service.ExperienceService;
+import com.apigateway.service.JobRecommendationService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import proto.NewExperienceResponseProto;
 import proto.RemoveExperienceResponseProto;
+import proto.RemoveInterestResponseProto;
 import proto.UpdateExperienceResponseProto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,11 +31,13 @@ public class ExperienceController {
 
     private final ExperienceService experienceService;
     private final LoggerService loggerService;
+    private final JobRecommendationService jobRecommendationService;
     private static final String NOT_FOUND_STATUS = "Status 404";
 
     @Autowired
-    public ExperienceController(ExperienceService experienceService) {
+    public ExperienceController(ExperienceService experienceService, JobRecommendationService jobRecommendationService) {
         this.experienceService = experienceService;
+        this.jobRecommendationService = jobRecommendationService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
 
@@ -42,6 +46,7 @@ public class ExperienceController {
     public ResponseEntity<ExperienceDTO> add(@RequestBody NewExperienceDTO dto, HttpServletRequest request) {
         try {
             NewExperienceResponseProto response = experienceService.add(dto);
+            RemoveInterestResponseProto jobRecommendationResponse = jobRecommendationService.addExperience(dto);
             if (response.getStatus().equals(NOT_FOUND_STATUS))
                 return ResponseEntity.notFound().build();
             else if (response.getStatus().equals("Status 400"))
