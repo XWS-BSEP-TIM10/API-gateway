@@ -128,14 +128,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Zahtevi koji se mecuju za web.ignoring().antMatchers() nemaju pristup SecurityContext-u
 
         // Dozvoljena POST metoda na ruti /auth/login, za svaki drugi tip HTTP metode greska je 401 Unauthorized
-        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/login", "/ws/**","/metrics/**");
+        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/login", "/ws/**");
         web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/signup");
-        web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/auth/recover/changePassword/*", "/ws/**","/metrics/**");
+        web.ignoring().antMatchers(HttpMethod.PUT, "/api/v1/auth/recover/changePassword/*", "/ws/**");
 
         // Ovim smo dozvolili pristup statickim resursima aplikacije
         web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                "/**/*.css", "/**/*.js", "/api/v1/profiles/find", "/api/v1/auth/confirm/*", "/api/v1/auth/recover/*", "/api/v1/auth/login/passwordless/*", "/api/v1/auth/checkToken/*", "/ws/**","/metrics/**");
-
+                "/**/*.css", "/**/*.js", "/api/v1/profiles/find", "/api/v1/auth/confirm/*", "/api/v1/auth/recover/*", "/api/v1/auth/login/passwordless/*", "/api/v1/auth/checkToken/*", "/ws/**");
+        
+        web.ignoring().antMatchers("/actuator/**", "/metrics/**");
+    
     }
 
 }
