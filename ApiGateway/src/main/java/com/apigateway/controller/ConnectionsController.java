@@ -96,13 +96,13 @@ public class ConnectionsController {
             UserResponseProto userResponseProto = userService.getById(connectionRequestDto.getInitiatorId());
             if(userResponseProto.getUser().getMuteConnectionsNotifications())
                 return ResponseEntity.ok().build();
-            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(connectionRequestDto.getInitiatorId());
-            NewNotificationProto newNotificationProto = NewNotificationProto.newBuilder().setUserId(connectionRequestDto.getReceiverId()).setText("User " + userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName() + " approved your connection request!").build();
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(connectionRequestDto.getReceiverId());
+            NewNotificationProto newNotificationProto = NewNotificationProto.newBuilder().setUserId(connectionRequestDto.getInitiatorId()).setText("User " + userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName() + " approved your connection request!").build();
             notificationService.add(newNotificationProto);
             messagingTemplate.convertAndSendToUser(
-                    connectionRequestDto.getReceiverId(),"/queue/connections",
+                    connectionRequestDto.getInitiatorId(),"/queue/connections",
                     new ChatNotificationDTO(
-                            "approve", connectionRequestDto.getInitiatorId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
+                            "approve", connectionRequestDto.getReceiverId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
