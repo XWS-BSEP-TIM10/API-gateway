@@ -24,7 +24,7 @@ public class UpdateUserDTO {
 
     private boolean muteConnectionsNotifications;
 
-    private boolean muteMassageNotifications;
+    private boolean muteMessageNotifications;
 
     private boolean mutePostNotifications;
 
@@ -124,8 +124,8 @@ public class UpdateUserDTO {
         return muteConnectionsNotifications;
     }
 
-    public boolean isMuteMassageNotifications() {
-        return muteMassageNotifications;
+    public boolean isMuteMessageNotifications() {
+        return muteMessageNotifications;
     }
 
     public boolean isMutePostNotifications() {
