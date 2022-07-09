@@ -18,6 +18,8 @@ import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,12 +65,16 @@ public class AuthController {
     private static final String NOT_FOUND_STATUS = "Status 404";
     private static final String BAD_REQUEST_STATUS = "Status 400";
     private static final String TOKEN_EXPIRED = "Token expired";
+    
+    private static final String HTTP_STATUS_TAG = "http_status";
+    private static final String COUNTER_NAME = "http_requests";
 
     public AuthController(AuthService authService, UserService userService, MeterRegistry registry) {
         this.authService = authService;
         this.userService = userService;
-        this.httpRequests = Counter.builder("http_request")
+        this.httpRequests = Counter.builder(COUNTER_NAME)
                 .description("Number of HTTP requests for server endpoints")
+                .tag(HTTP_STATUS_TAG, "200")
                 .register(registry);
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
@@ -76,17 +82,22 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<NewUserResponseDTO> addUser(@Valid @RequestBody NewUserDTO newUserDTO, HttpServletRequest request) {
         try {
-            this.httpRequests.increment();
             newUserDTO.setId(userService.getId(newUserDTO.getEmail()).getId());
             NewUserResponseProto response = authService.signUp(newUserDTO);
-            if (response.getStatus().equals(BAD_REQUEST_STATUS))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
-            if (response.getStatus().equals(CONFLICT_STATUS) || response.getStatus().equals(TEAPOT_STATUS))
+            }
+            if (response.getStatus().equals(CONFLICT_STATUS) || response.getStatus().equals(TEAPOT_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "409").increment();
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
             NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "201").increment();
             return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -108,15 +119,22 @@ public class AuthController {
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletRequest request) {
         try {
             LoginResponseProto response = authService.login(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getCode());
-            if (response.getStatus().equals("Status 300"))
+            if (response.getStatus().equals("Status 300")) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "300").increment();
                 return ResponseEntity.status(300).build();
-            if (response.getStatus().equals(BAD_REQUEST_STATUS))
+            }
+            if (response.getStatus().equals(BAD_REQUEST_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
+            }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok(new TokenDTO(response.getJwt(), response.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         } catch (Exception ex) {
+        	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -126,8 +144,11 @@ public class AuthController {
     @PutMapping(value = "/2fa")
     public ResponseEntity<TwoFAResponseDTO> change2FAStatus(@RequestBody TwoFADTO twoFADTO) {
         Change2FAStatusResponseProto response = authService.change2FAStatus(twoFADTO.getUserId(), twoFADTO.isEnable2FA());
-        if (response.getStatus().equals(NOT_FOUND_STATUS))
+        if (response.getStatus().equals(NOT_FOUND_STATUS)) {
+        	Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
             return ResponseEntity.notFound().build();
+        }
+        Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
         return ResponseEntity.ok(new TwoFAResponseDTO(response.getSecret()));
     }
 
@@ -135,23 +156,31 @@ public class AuthController {
     @GetMapping(value = "/2fa/status/{userId}")
     public ResponseEntity<TwoFAStatusDTO> check2FAStatus(@PathVariable String userId, HttpServletRequest request) {
         TwoFAStatusResponseProto response = authService.checkTwoFaStatus(userId);
-        if (response.getStatus().equals(NOT_FOUND_STATUS))
+        if (response.getStatus().equals(NOT_FOUND_STATUS)) {
+        	Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
             return ResponseEntity.notFound().build();
+        }
+        Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
         return ResponseEntity.ok(new TwoFAStatusDTO(response.getEnabled2FA()));
     }
 
     @GetMapping(value = "/confirm/{token}")
     public ResponseEntity<HttpStatus> confirmToken(@PathVariable String token, HttpServletRequest request) {
-        try {
+        try {     	
             VerifyAccountResponseProto response = authService.verifyUserAccount(token);
-            if (response.getStatus().equals(BAD_REQUEST_STATUS))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
+            }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok().build();
 
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         } catch (Exception ex) {
+        	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
             return ResponseEntity.badRequest().build();
         }
 
@@ -162,32 +191,44 @@ public class AuthController {
     public ResponseEntity<HttpStatus> login(@RequestBody ChangePasswordDto changePasswordDto, HttpServletRequest request) {
         try {
             ChangePasswordResponseProto response = authService.changePassword(changePasswordDto.getUserId(), changePasswordDto.getOldPassword(), changePasswordDto.getNewPassword(), changePasswordDto.getRepeatedNewPassword());
-            if (response.getStatus().equals(BAD_REQUEST_STATUS))
+            if (response.getStatus().equals(BAD_REQUEST_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
-            if (response.getStatus().equals(TEAPOT_STATUS))
+            }
+            if (response.getStatus().equals(TEAPOT_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
+            }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         } catch (Exception ex) {
+        	Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping(value = "/recover")
     public ResponseEntity<HttpStatus> recoverAccount(@Email String email, HttpServletRequest request) {
-        try {
+        try {      	
             String id = userService.getId(email).getId();
             if (!id.equals("")) {
                 SendTokenResponseProto recoverProto = authService.recoverAccount(id, email);
-                if (recoverProto.getStatus().equals("Status 200"))
+                if (recoverProto.getStatus().equals("Status 200")) {
+                	Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
                     return ResponseEntity.ok().build();
+                }
+                Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
                 return ResponseEntity.notFound().build();
             }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
             return ResponseEntity.notFound().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
 
@@ -195,21 +236,24 @@ public class AuthController {
 
     @PutMapping(value = "/recover/changePassword/{token}")
     public ResponseEntity<String> changePasswordRecovery(@PathVariable String token, @RequestBody PasswordDto passwordDto, HttpServletRequest request) {
-        try {
-
+        try {	
             RecoveryPasswordResponseProto recoveryPasswordResponseProto = authService.changePasswordRecovery(passwordDto.getNewPassword(), passwordDto.getRepeatedNewPassword(), token);
             if (recoveryPasswordResponseProto.getStatus().equals(TEAPOT_STATUS)) {
                 loggerService.changePasswordRecoverFailed(TOKEN_EXPIRED, request.getRemoteAddr());
+                Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().body(TOKEN_EXPIRED);
             }
             if (recoveryPasswordResponseProto.getStatus().equals("Status 400")) {
                 loggerService.changePasswordRecoverFailed("Passwords not matching", request.getRemoteAddr());
+                Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
             }
             loggerService.passwordRecovered(request.getRemoteAddr());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -220,13 +264,18 @@ public class AuthController {
             String id = userService.getId(email).getId();
             if (!id.equals("")) {
                 SendTokenResponseProto recoverProto = authService.generateTokenPasswordless(id, email);
-                if (recoverProto.getStatus().equals("Status 200"))
+                if (recoverProto.getStatus().equals("Status 200")) {
+                	Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
                     return ResponseEntity.ok().build();
+                }
+                Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
                 return ResponseEntity.notFound().build();
             }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
             return ResponseEntity.notFound().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
 
@@ -234,27 +283,32 @@ public class AuthController {
 
     @GetMapping(value = "/login/passwordless/{token}")
     public ResponseEntity<TokenDTO> passwordlessLogin(@PathVariable String token, HttpServletRequest request) {
-        try {
+        try {      	
             LoginResponseProto loginResponseProto = authService.passwordlessLogin(token);
             if (loginResponseProto.getStatus().equals(BAD_REQUEST_STATUS)) {
                 loggerService.passwordlessLoginFailed(TOKEN_EXPIRED, request.getRemoteAddr());
+                Metrics.counter("http_requests", HTTP_STATUS_TAG, "400").increment();
                 return ResponseEntity.badRequest().build();
             }
             loggerService.passwordlessLoginSuccess(request.getRemoteAddr());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok(new TokenDTO(loginResponseProto.getJwt(), loginResponseProto.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/refreshToken")
     public ResponseEntity<TokenDTO> refreshToken(@RequestHeader("Authorization") String token, HttpServletRequest request) {
-        try {
+        try {	
             LoginResponseProto response = authService.refreshToken(token);
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok(new TokenDTO(response.getJwt(), response.getRefreshToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
 
@@ -262,14 +316,17 @@ public class AuthController {
 
     @GetMapping("/checkToken/{token}")
     public ResponseEntity<HttpStatus> checkToken(@PathVariable String token, HttpServletRequest request) {
-        try {
+        try {  	
             SendTokenResponseProto response = authService.checkToken(token);
             if (response.getStatus().equals(NOT_FOUND_STATUS)) {
+            	Metrics.counter("http_requests", HTTP_STATUS_TAG, "404").increment();
                 return ResponseEntity.notFound().build();
             }
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
 
@@ -278,12 +335,14 @@ public class AuthController {
     @PreAuthorize("hasAuthority('CREATE_API_TOKEN')")
     @PostMapping("/api-token")
     public ResponseEntity<APITokenResponseDTO> generateAPIToken(@RequestBody APITokenRequestDTO requestDTO, HttpServletRequest request) {
-        try {
+        try {       	
             APITokenResponseProto response = authService.generateAPIToken(requestDTO.getUserId());
             loggerService.apiTokenGenerated(requestDTO.getUserId());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
             return ResponseEntity.ok(new APITokenResponseDTO(response.getToken()));
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
     }
