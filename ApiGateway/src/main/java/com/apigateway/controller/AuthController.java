@@ -1,24 +1,15 @@
 package com.apigateway.controller;
 
-import com.apigateway.dto.APITokenRequestDTO;
-import com.apigateway.dto.APITokenResponseDTO;
-import com.apigateway.dto.ChangePasswordDto;
-import com.apigateway.dto.LoginDTO;
-import com.apigateway.dto.NewUserDTO;
-import com.apigateway.dto.NewUserResponseDTO;
-import com.apigateway.dto.PasswordDto;
-import com.apigateway.dto.TokenDTO;
-import com.apigateway.dto.TwoFADTO;
-import com.apigateway.dto.TwoFAResponseDTO;
-import com.apigateway.dto.TwoFAStatusDTO;
-import com.apigateway.service.AuthService;
-import com.apigateway.service.LoggerService;
-import com.apigateway.service.UserService;
-import com.apigateway.service.impl.LoggerServiceImpl;
-import io.grpc.StatusRuntimeException;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Metrics;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,18 +26,37 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import proto.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
+import com.apigateway.dto.APITokenRequestDTO;
+import com.apigateway.dto.APITokenResponseDTO;
+import com.apigateway.dto.ChangePasswordDto;
+import com.apigateway.dto.LoginDTO;
+import com.apigateway.dto.NewUserDTO;
+import com.apigateway.dto.NewUserResponseDTO;
+import com.apigateway.dto.PasswordDto;
+import com.apigateway.dto.TokenDTO;
+import com.apigateway.dto.TwoFADTO;
+import com.apigateway.dto.TwoFAResponseDTO;
+import com.apigateway.dto.TwoFAStatusDTO;
+import com.apigateway.service.AuthService;
+import com.apigateway.service.LoggerService;
+import com.apigateway.service.UserService;
+import com.apigateway.service.impl.LoggerServiceImpl;
+import com.apigateway.util.MyThread;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.grpc.StatusRuntimeException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import proto.APITokenResponseProto;
+import proto.Change2FAStatusResponseProto;
+import proto.ChangePasswordResponseProto;
+import proto.LoginResponseProto;
+import proto.NewUserResponseProto;
+import proto.RecoveryPasswordResponseProto;
+import proto.SendTokenResponseProto;
+import proto.TwoFAStatusResponseProto;
+import proto.VerifyAccountResponseProto;
 
 @RestController
 @RequestMapping(value = "/api/v1/auth")
@@ -55,7 +65,8 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final LoggerService loggerService;
-    private final Counter httpRequests;
+   // private final Gauge uniqueVisitors;
+   // private final Timer uniqueVisitors;
 
     private static final String CONFLICT_STATUS = "Status 409";
     private static final String TEAPOT_STATUS = "Status 418";
@@ -63,12 +74,14 @@ public class AuthController {
     private static final String BAD_REQUEST_STATUS = "Status 400";
     private static final String TOKEN_EXPIRED = "Token expired";
     
+    //private static final String GAUGE_NAME = "unique_visitors";
     private static final String COUNTER_NAME = "http_requests";
     private static final String HTTP_STATUS_TAG = "http_status";
     private static final String IP_ADDR_TAG = "ip_addr";
     private static final String WEB_BROWSER_TAG = "web_browser";
     private static final String TIMESTAMP_TAG = "timestamp";
     private static final String ENDPOINT_TAG = "endpoint";
+    private  final MeterRegistry registry;
     
     private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     
@@ -76,15 +89,8 @@ public class AuthController {
     public AuthController(AuthService authService, UserService userService, MeterRegistry registry) {
         this.authService = authService;
         this.userService = userService;
-        this.httpRequests = Counter.builder(COUNTER_NAME)
-                .description("Number of HTTP requests for server endpoints")
-                .tag(HTTP_STATUS_TAG, "200")
-                .tag( IP_ADDR_TAG, "")
-                .tag(WEB_BROWSER_TAG, "")
-                .tag(TIMESTAMP_TAG, "")
-                .tag(ENDPOINT_TAG, "/auth")
-                .register(registry);
         this.loggerService = new LoggerServiceImpl(this.getClass());
+        this.registry = registry;
     }
 
     @PostMapping("/signup")
@@ -101,7 +107,16 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
             NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
-            Metrics.counter("http_requests", HTTP_STATUS_TAG, "201", IP_ADDR_TAG, request.getRemoteAddr(),WEB_BROWSER_TAG,request.getHeader("User-Agent"),TIMESTAMP_TAG,iso8601Formatter.format(new Date()),ENDPOINT_TAG,request.getRequestURI()).increment();
+            //Metrics.counter("http_requests", HTTP_STATUS_TAG, "201", IP_ADDR_TAG, request.getRemoteAddr(),WEB_BROWSER_TAG,request.getHeader("User-Agent"),TIMESTAMP_TAG,iso8601Formatter.format(new Date()),ENDPOINT_TAG,request.getRequestURI()).increment();
+            Counter tempCounter = Counter.builder(COUNTER_NAME)
+                    .description("Number of HTTP requests for server endpoints")
+                    .tag(HTTP_STATUS_TAG, "201")
+                    .tag( IP_ADDR_TAG, request.getRemoteAddr())
+                    .tag(WEB_BROWSER_TAG, request.getHeader("User-Agent"))
+                    .tag(TIMESTAMP_TAG, iso8601Formatter.format(new Date()))
+                    .tag(ENDPOINT_TAG, request.getRequestURI())
+                    .register(registry);           
+                    new MyThread(tempCounter).start();
             return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

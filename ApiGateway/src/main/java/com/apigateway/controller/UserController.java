@@ -24,6 +24,7 @@ import com.apigateway.dto.UserDto;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
+import com.apigateway.util.MyThread;
 
 import io.grpc.StatusRuntimeException;
 import io.micrometer.core.instrument.Counter;
@@ -42,14 +43,14 @@ public class UserController {
     private final UserService userService;
 
     private final LoggerService loggerService;
-    private final Counter httpRequests;
     
-    private static final String COUNTER_NAME = "http_requests";
-    private static final String HTTP_STATUS_TAG = "http_status";
-    private static final String IP_ADDR_TAG = "ip_addr";
-    private static final String WEB_BROWSER_TAG = "web_browser";
-    private static final String TIMESTAMP_TAG = "timestamp";
-    private static final String ENDPOINT_TAG = "endpoint";
+    public static final String COUNTER_NAME = "http_requests";
+    public static final String HTTP_STATUS_TAG = "http_status";
+    public static final String IP_ADDR_TAG = "ip_addr";
+    public static final String WEB_BROWSER_TAG = "web_browser";
+    public static final String TIMESTAMP_TAG = "timestamp";
+    public static final String ENDPOINT_TAG = "endpoint";
+    private  final MeterRegistry registry;
     
     private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -57,14 +58,7 @@ public class UserController {
     public UserController(UserService userService, MeterRegistry registry) {
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
-        this.httpRequests = Counter.builder(COUNTER_NAME)
-                .description("Number of HTTP requests for server endpoints")
-                .tag(HTTP_STATUS_TAG, "200")
-                .tag( IP_ADDR_TAG, "")
-                .tag(WEB_BROWSER_TAG, "")
-                .tag(TIMESTAMP_TAG, "")
-                .tag(ENDPOINT_TAG, "/auth")
-                .register(registry);
+        this.registry = registry;
     }
 
     @PreAuthorize("hasAuthority('UPDATE_PROFILE_PERMISSION')")
@@ -94,7 +88,7 @@ public class UserController {
 
 
     @GetMapping("find")
-    public ResponseEntity<List<UserDto>> find(String first_name, String last_name, HttpServletRequest request) {
+    public ResponseEntity<List<UserDto>> find(String first_name, String last_name, HttpServletRequest request) throws InterruptedException {
         try {
             FindUserResponseProto response = userService.find(first_name, last_name);
             List<UserDto> users = new ArrayList<>();
@@ -102,7 +96,15 @@ public class UserController {
                 UserDto dto = new UserDto(userProto);
                 users.add(dto);
             }
-            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200", IP_ADDR_TAG, request.getRemoteAddr(),WEB_BROWSER_TAG,request.getHeader("User-Agent"),TIMESTAMP_TAG,iso8601Formatter.format(new Date()),ENDPOINT_TAG,request.getRequestURI()).increment();
+            Counter tempCounter = Counter.builder(COUNTER_NAME)
+            .description("Number of HTTP requests for server endpoints")
+            .tag(HTTP_STATUS_TAG, "200")
+            .tag( IP_ADDR_TAG, request.getRemoteAddr())
+            .tag(WEB_BROWSER_TAG, request.getHeader("User-Agent"))
+            .tag(TIMESTAMP_TAG, iso8601Formatter.format(new Date()))
+            .tag(ENDPOINT_TAG, request.getRequestURI())
+            .register(registry);           
+            new MyThread(tempCounter).start();
             return ResponseEntity.ok(users);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -145,4 +147,5 @@ public class UserController {
         }
         return ResponseEntity.ok(events);
     }
+    
 }
