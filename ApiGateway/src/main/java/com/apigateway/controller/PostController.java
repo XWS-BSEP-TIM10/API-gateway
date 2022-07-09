@@ -10,6 +10,7 @@ import com.apigateway.dto.PostsResponseDTO;
 import com.apigateway.dto.ReactionDTO;
 import com.apigateway.dto.RemoveReactionDTO;
 import com.apigateway.mapper.PostMapper;
+import com.apigateway.model.User;
 import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
 import com.apigateway.service.NotificationService;
@@ -31,16 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import proto.AddPostResponseProto;
-import proto.AddReactionResponseProto;
-import proto.CommentPostResponseProto;
-import proto.CommentProto;
-import proto.ConnectionsResponseProto;
-import proto.NotificationResponseProto;
-import proto.PostProto;
-import proto.RemoveReactionResponseProto;
-import proto.UserNamesResponseProto;
-import proto.UserPostsResponseProto;
+import proto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -84,6 +76,9 @@ public class PostController {
             NotificationResponseProto notificationResponseProto = notificationService.addPostNotification(connectionsResponseProto.getConnectionsList(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName());
             NewPostResponseDTO newPostResponseDTO = new NewPostResponseDTO(addPostResponseProto.getId());
             for(String tempUserId: connectionsResponseProto.getConnectionsList()) {
+                UserResponseProto userResponseProto = userService.getById(tempUserId);
+                if(userResponseProto.getUser().getMutePostNotifications())
+                    continue;
             	messagingTemplate.convertAndSendToUser(
                         tempUserId,"/queue/posts",
                         new ChatNotificationDTO(

@@ -26,7 +26,7 @@ import com.apigateway.service.UserService;
 @Controller
 public class MessagingController {
 	
-    private SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 	private final MessagingService messagingService;
 	private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 	private final UserService userService;
@@ -43,6 +43,9 @@ public class MessagingController {
     	UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(chatMessage.getSenderId());
     	chatMessage.setSenderName(userNamesResponseProto.getFirstName()+ " "+ userNamesResponseProto.getLastName());
     	ChatMessageResponseProto responseProto = messagingService.add(chatMessage);
+		UserResponseProto userResponseProto = userService.getById(chatMessage.getRecipientId());
+		if(userResponseProto.getUser().getMuteMessageNotifications())
+			return;
         
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId(),"/queue/messages",

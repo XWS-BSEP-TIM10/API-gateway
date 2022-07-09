@@ -14,6 +14,9 @@ message UpdateUserProto{
   string username = 8;
   string biography = 9;
   bool profilePublic = 10;
+  bool muteConnectionsNotifications = 11;
+  bool muteMessageNotifications = 12;
+  bool mutePostNotifications = 13;
 }
 
 message UpdateUserResponseProto{
@@ -45,6 +48,9 @@ message UserProto{
   repeated ExperienceProto experiences = 10;
   repeated InterestProto interests = 11;
   bool profilePublic = 12;
+  bool muteConnectionsNotifications = 13;
+  bool muteMessageNotifications = 14;
+  bool mutePostNotifications = 15;
 
 }
 
@@ -84,7 +90,6 @@ message EmailResponseProto{
 message IdProto{
   string email = 1;
 }
-
 message IdResponseProto{
   string id = 1;
   string status = 2;

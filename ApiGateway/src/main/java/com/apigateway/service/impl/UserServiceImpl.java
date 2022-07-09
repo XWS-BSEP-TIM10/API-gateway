@@ -30,7 +30,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UpdateUserResponseProto update(UpdateUserDTO dto) {
-        UpdateUserProto updateUserProto = UpdateUserProto.newBuilder().setUuid(dto.getUuid()).setFirstName(dto.getFirstName()).setLastName(dto.getLastName()).setEmail(dto.getEmail()).setPhoneNumber(dto.getPhoneNumber()).setGender(dto.getGender()).setDateOfBirth(dto.getDateOfBirth()).setUsername(dto.getUsername()).setBiography(dto.getBiography()).setProfilePublic(dto.isProfilePublic()).build();
+        UpdateUserProto updateUserProto = UpdateUserProto.newBuilder().setUuid(dto.getUuid()).setFirstName(dto.getFirstName())
+                .setLastName(dto.getLastName()).setEmail(dto.getEmail()).setPhoneNumber(dto.getPhoneNumber())
+                .setGender(dto.getGender()).setDateOfBirth(dto.getDateOfBirth()).setUsername(dto.getUsername())
+                .setBiography(dto.getBiography()).setProfilePublic(dto.isProfilePublic())
+                .setMuteConnectionsNotifications(dto.isMuteConnectionsNotifications())
+                .setMuteMessageNotifications(dto.isMuteMassageNotifications())
+                .setMutePostNotifications(dto.isMutePostNotifications()).build();
         return this.stub.update(updateUserProto);
 
     }
