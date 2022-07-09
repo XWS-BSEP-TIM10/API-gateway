@@ -34,6 +34,12 @@ public class UserDto {
 
     private Set<InterestDTO> interests;
 
+    private boolean muteConnectionsNotifications;
+
+    private boolean muteMessageNotifications;
+
+    private boolean mutePostNotifications;
+
     public UserDto() {
 
     }
@@ -58,8 +64,11 @@ public class UserDto {
             this.interests.add(new InterestDTO(interestProto));
         }
         this.profilePublic = userProto.getProfilePublic();
-
+        this.muteMessageNotifications = userProto.getMuteMessageNotifications();
+        this.muteConnectionsNotifications = userProto.getMuteConnectionsNotifications();
+        this.mutePostNotifications = userProto.getMutePostNotifications();
     }
+
 
     public String getId() {
         return id;
@@ -151,5 +160,17 @@ public class UserDto {
 
     public boolean isProfilePublic() {
         return profilePublic;
+    }
+
+    public boolean isMuteConnectionsNotifications() {
+        return muteConnectionsNotifications;
+    }
+
+    public boolean isMuteMessageNotifications() {
+        return muteMessageNotifications;
+    }
+
+    public boolean isMutePostNotifications() {
+        return mutePostNotifications;
     }
 }

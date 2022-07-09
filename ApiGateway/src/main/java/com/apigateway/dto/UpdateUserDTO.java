@@ -22,6 +22,12 @@ public class UpdateUserDTO {
 
     private boolean profilePublic;
 
+    private boolean muteConnectionsNotifications;
+
+    private boolean muteMessageNotifications;
+
+    private boolean mutePostNotifications;
+
     public UpdateUserDTO() {
     }
 
@@ -112,5 +118,17 @@ public class UpdateUserDTO {
 
     public boolean isProfilePublic() {
         return profilePublic;
+    }
+
+    public boolean isMuteConnectionsNotifications() {
+        return muteConnectionsNotifications;
+    }
+
+    public boolean isMuteMessageNotifications() {
+        return muteMessageNotifications;
+    }
+
+    public boolean isMutePostNotifications() {
+        return mutePostNotifications;
     }
 }

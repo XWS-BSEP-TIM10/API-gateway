@@ -3,11 +3,13 @@ package com.apigateway.controller;
 import com.apigateway.dto.*;
 import com.apigateway.service.ConnectionsService;
 import com.apigateway.service.LoggerService;
+import com.apigateway.service.NotificationService;
 import com.apigateway.service.UserService;
 import com.apigateway.service.impl.LoggerServiceImpl;
 import io.grpc.StatusRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,12 +29,16 @@ import java.util.List;
 @RequestMapping(value = "/api/v1")
 public class ConnectionsController {
 
+    private final SimpMessagingTemplate messagingTemplate;
     private final ConnectionsService connectionsService;
     private final LoggerService loggerService;
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public ConnectionsController(ConnectionsService connectionsService, UserService userService) {
+    public ConnectionsController(SimpMessagingTemplate messagingTemplate, ConnectionsService connectionsService, UserService userService, NotificationService notificationService) {
+        this.messagingTemplate = messagingTemplate;
         this.connectionsService = connectionsService;
+        this.notificationService = notificationService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
         this.userService = userService;
     }
@@ -44,8 +50,19 @@ public class ConnectionsController {
             CreateConnectionResponseProto connectionResponseProto = connectionsService.createConnection(newConnectionRequestDTO.getInitiatorId(), newConnectionRequestDTO.getReceiverId());
             if (connectionResponseProto.getStatus().equals("Status 400"))
                 return ResponseEntity.badRequest().build();
-            else if (connectionResponseProto.getStatus().equals("Status 200"))
+            else if (connectionResponseProto.getStatus().equals("Status 200")) {
+                UserResponseProto userResponseProto = userService.getById(newConnectionRequestDTO.getReceiverId());
+                if(userResponseProto.getUser().getMuteConnectionsNotifications())
+                    return ResponseEntity.ok(new CreateConnnectionResponseDTO(connectionResponseProto.getConnectionStatus()));
+                UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(newConnectionRequestDTO.getInitiatorId());
+                NewNotificationProto newNotificationProto = NewNotificationProto.newBuilder().setUserId(newConnectionRequestDTO.getReceiverId()).setText("User " + userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName() + " wants to connect!").build();
+                notificationService.add(newNotificationProto);
+                messagingTemplate.convertAndSendToUser(
+                        newConnectionRequestDTO.getReceiverId(),"/queue/connections",
+                        new ChatNotificationDTO(
+                                "connect", newConnectionRequestDTO.getInitiatorId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
                 return ResponseEntity.ok(new CreateConnnectionResponseDTO(connectionResponseProto.getConnectionStatus()));
+            }
             return ResponseEntity.internalServerError().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
@@ -76,6 +93,16 @@ public class ConnectionsController {
             ConnectionResponseProto responseProto = connectionsService.respondConnectionRequest(connectionRequestDto.getInitiatorId(), connectionRequestDto.getReceiverId(), true);
             if (responseProto == null || responseProto.getStatus().equals("Status 404"))
                 return ResponseEntity.notFound().build();
+            UserResponseProto userResponseProto = userService.getById(connectionRequestDto.getInitiatorId());
+            if(userResponseProto.getUser().getMuteConnectionsNotifications())
+                return ResponseEntity.ok().build();
+            UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(connectionRequestDto.getReceiverId());
+            NewNotificationProto newNotificationProto = NewNotificationProto.newBuilder().setUserId(connectionRequestDto.getInitiatorId()).setText("User " + userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName() + " approved your connection request!").build();
+            notificationService.add(newNotificationProto);
+            messagingTemplate.convertAndSendToUser(
+                    connectionRequestDto.getInitiatorId(),"/queue/connections",
+                    new ChatNotificationDTO(
+                            "approve", connectionRequestDto.getReceiverId(),userNamesResponseProto.getFirstName()+" "+userNamesResponseProto.getLastName()));
             return ResponseEntity.ok().build();
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
