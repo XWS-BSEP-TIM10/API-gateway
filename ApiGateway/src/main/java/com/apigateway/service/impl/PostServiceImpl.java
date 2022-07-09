@@ -6,17 +6,7 @@ import com.google.protobuf.ByteString;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import proto.AddPostProto;
-import proto.AddPostResponseProto;
-import proto.AddReactionProto;
-import proto.AddReactionResponseProto;
-import proto.CommentPostProto;
-import proto.CommentPostResponseProto;
-import proto.PostGrpcServiceGrpc;
-import proto.RemoveReactionProto;
-import proto.RemoveReactionResponseProto;
-import proto.UserPostsProto;
-import proto.UserPostsResponseProto;
+import proto.*;
 
 import java.io.IOException;
 
@@ -25,6 +15,12 @@ public class PostServiceImpl implements PostService {
 
     @GrpcClient("postgrpcservice")
     private PostGrpcServiceGrpc.PostGrpcServiceBlockingStub stub;
+
+    @Override
+    public PostEventResponseProto getEvents() {
+        PostEventProto eventProto = PostEventProto.newBuilder().build();
+        return stub.getPostEvents(eventProto);
+    }
 
     @Override
     public AddPostResponseProto addPost(NewPostRequestDTO newPostRequestDTO, MultipartFile image) throws IOException {

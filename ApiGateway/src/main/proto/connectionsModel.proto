@@ -72,3 +72,8 @@ message ConnectionsResponseProto{
   string status = 2;
 }
 
+message ConnectionsEventProto{}
+
+message ConnectionsEventResponseProto{
+  repeated string events = 1;
+}

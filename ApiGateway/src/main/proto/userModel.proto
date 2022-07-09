@@ -102,3 +102,9 @@ message UserResponseProto{
 message  UserIdsProto{
   repeated string id = 1;
 }
+
+message ProfileEventProto{}
+
+message ProfileEventResponseProto{
+  repeated string events = 1;
+}

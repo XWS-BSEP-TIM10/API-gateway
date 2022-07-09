@@ -44,4 +44,10 @@ public class JobRecommendationServiceImpl implements JobRecommendationService {
         return this.stub.findRecommendations(requestProto);
     }
 
+    @Override
+    public JobRecommendationEventResponseProto getEvents() {
+        JobRecommendationEventProto eventProto = JobRecommendationEventProto.newBuilder().build();
+        return stub.getJobRecommendationEvents(eventProto);
+    }
+
 }

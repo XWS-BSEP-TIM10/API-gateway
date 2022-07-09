@@ -5,6 +5,8 @@ import proto.*;
 
 public interface AuthService {
 
+    EventResponseProto getEvents();
+
     SendTokenResponseProto recoverAccount(String id, String email);
 
     RecoveryPasswordResponseProto changePasswordRecovery(String newPassword, String repeatedNewPassword, String token);

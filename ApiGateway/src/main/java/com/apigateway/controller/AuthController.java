@@ -35,20 +35,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import proto.APITokenResponseProto;
-import proto.Change2FAStatusResponseProto;
-import proto.ChangePasswordResponseProto;
-import proto.LoginResponseProto;
-import proto.NewUserResponseProto;
-import proto.RecoveryPasswordResponseProto;
-import proto.SendTokenResponseProto;
-import proto.TwoFAStatusResponseProto;
-import proto.VerifyAccountResponseProto;
+import proto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -345,5 +339,15 @@ public class AuthController {
             Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PreAuthorize("hasAuthority('GET_EVENTS_PERMISSION')")
+    @GetMapping(value = "/events")
+    public ResponseEntity<List<String>> getEvents() {
+        List<String> events = new ArrayList<>();
+        for(String event : authService.getEvents().getEventsList()){
+            events.add(event);
+        }
+        return ResponseEntity.ok(events);
     }
 }

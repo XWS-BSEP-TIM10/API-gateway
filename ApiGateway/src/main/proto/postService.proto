@@ -11,4 +11,5 @@ service PostGrpcService{
   rpc addReaction (AddReactionProto) returns (AddReactionResponseProto);
   rpc commentPost(CommentPostProto) returns (CommentPostResponseProto);
   rpc removeReaction(RemoveReactionProto) returns (RemoveReactionResponseProto);
+  rpc getPostEvents (PostEventProto) returns (PostEventResponseProto);
 }

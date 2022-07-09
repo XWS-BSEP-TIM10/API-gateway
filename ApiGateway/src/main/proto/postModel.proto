@@ -67,3 +67,9 @@ message CommentProto{
   string userId = 1;
   string text = 2;
 }
+
+message PostEventProto{}
+
+message PostEventResponseProto{
+  repeated string events = 1;
+}

@@ -2,15 +2,14 @@ package com.apigateway.service;
 
 import com.apigateway.dto.NewPostRequestDTO;
 import org.springframework.web.multipart.MultipartFile;
-import proto.AddPostResponseProto;
-import proto.AddReactionResponseProto;
-import proto.CommentPostResponseProto;
-import proto.RemoveReactionResponseProto;
-import proto.UserPostsResponseProto;
+import proto.*;
 
 import java.io.IOException;
 
 public interface PostService {
+
+    PostEventResponseProto getEvents();
+
     AddPostResponseProto addPost(NewPostRequestDTO newPostRequestDTO, MultipartFile image) throws IOException;
 
     AddReactionResponseProto addReaction(String postId, String userId, Boolean like);

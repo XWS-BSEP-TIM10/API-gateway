@@ -3,22 +3,7 @@ package com.apigateway.service.impl;
 import com.apigateway.service.ConnectionsService;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import proto.BlockResponseProto;
-import proto.ConnectionResponseProto;
-import proto.ConnectionStatusProto;
-import proto.ConnectionStatusResponseProto;
-import proto.ConnectionsGrpcServiceGrpc;
-import proto.ConnectionsProto;
-import proto.ConnectionsResponseProto;
-import proto.CreateBlockRequestProto;
-import proto.CreateConnectionRequestProto;
-import proto.CreateConnectionResponseProto;
-import proto.MutualsResponseProto;
-import proto.PendingRequestProto;
-import proto.PendingResponseProto;
-import proto.RecommendationsProto;
-import proto.RecommendationsResponseProto;
-import proto.RespondConnectionRequestProto;
+import proto.*;
 
 @Component
 public class ConnectionsServiceImpl implements ConnectionsService {
@@ -26,6 +11,12 @@ public class ConnectionsServiceImpl implements ConnectionsService {
     @GrpcClient("connectionsservice")
     private ConnectionsGrpcServiceGrpc.ConnectionsGrpcServiceBlockingStub stub;
 
+
+    @Override
+    public ConnectionsEventResponseProto getEvents() {
+        ConnectionsEventProto eventProto = ConnectionsEventProto.newBuilder().build();
+        return stub.getConnectionsEvents(eventProto);
+    }
 
     @Override
     public CreateConnectionResponseProto createConnection(String initiatorId, String receiverId) {

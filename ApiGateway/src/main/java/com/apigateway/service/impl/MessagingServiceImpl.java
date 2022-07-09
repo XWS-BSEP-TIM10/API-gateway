@@ -46,4 +46,10 @@ public class MessagingServiceImpl implements MessagingService{
 		FindChatMessagesProto findChatMessagesProto = FindChatMessagesProto.newBuilder().setRecipientId(recipientId).setSenderId(senderId).build();
 		return this.stub.findChatMessages(findChatMessagesProto);
 	}
+
+	@Override
+	public MessagingEventResponseProto getEvents() {
+		MessagingEventProto eventProto = MessagingEventProto.newBuilder().build();
+		return stub.getMessagingEvents(eventProto);
+	}
 }

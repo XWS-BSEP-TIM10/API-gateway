@@ -188,4 +188,14 @@ public class PostController {
         }
 
     }
+
+    @PreAuthorize("hasAuthority('GET_EVENTS_PERMISSION')")
+    @GetMapping(value = "/posts/events")
+    public ResponseEntity<List<String>> getEvents() {
+        List<String> events = new ArrayList<>();
+        for(String event : postService.getEvents().getEventsList()){
+            events.add(event);
+        }
+        return ResponseEntity.ok(events);
+    }
 }

@@ -107,3 +107,8 @@ message TwoFAStatusResponseProto {
   string status = 2;
 }
 
+message EventProto{}
+
+message EventResponseProto{
+  repeated string events = 1;
+}

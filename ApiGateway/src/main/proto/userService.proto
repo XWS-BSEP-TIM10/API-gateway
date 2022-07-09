@@ -5,6 +5,7 @@ package proto;
 import "userModel.proto";
 
 service UserGrpcService{
+  rpc getEventsProfile (ProfileEventProto) returns (ProfileEventResponseProto);
   rpc update (UpdateUserProto) returns (UpdateUserResponseProto);
   rpc find (FindUserProto) returns (FindUserResponseProto);
   rpc getFirstAndLastName (UserNamesProto) returns (UserNamesResponseProto);

@@ -54,6 +54,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public EventResponseProto getEvents() {
+        EventProto eventProto = EventProto.newBuilder().build();
+        return stub.getEvents(eventProto);
+    }
+
+    @Override
     public SendTokenResponseProto recoverAccount(String id, String email) {
         SendTokenProto sendTokenProto = SendTokenProto.newBuilder().setId(id).setEmail(email).build();
         return this.stub.recoverAccount(sendTokenProto);

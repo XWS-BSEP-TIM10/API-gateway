@@ -153,5 +153,14 @@ public class ConnectionsController {
         }
         return ResponseEntity.ok(pendingConnectionResponseDTOS);
     }
-    
+
+    @PreAuthorize("hasAuthority('GET_EVENTS_PERMISSION')")
+    @GetMapping(value = "/events")
+    public ResponseEntity<List<String>> getEvents() {
+        List<String> events = new ArrayList<>();
+        for(String event : connectionsService.getEvents().getEventsList()){
+            events.add(event);
+        }
+        return ResponseEntity.ok(events);
+    }
 }

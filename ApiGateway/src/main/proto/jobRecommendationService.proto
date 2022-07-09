@@ -8,4 +8,5 @@ service JobRecommendationGrpcService{
   rpc add (NewInterestProto) returns (RemoveInterestResponseProto);
   rpc addJob(JobAdRequestProto) returns(RemoveInterestResponseProto);
   rpc findRecommendations(UserIdRequestProto) returns(JobAdRecommendationsResponseProto);
+  rpc getJobRecommendationEvents (JobRecommendationEventProto) returns (JobRecommendationEventResponseProto);
 }

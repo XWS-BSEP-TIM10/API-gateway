@@ -40,3 +40,9 @@ message JobAdRecommendationsResponseProto{
   repeated JobAdRequestProto recommendations = 1;
   string status = 2;
 }
+
+message JobRecommendationEventProto{}
+
+message JobRecommendationEventResponseProto{
+  repeated string events = 1;
+}

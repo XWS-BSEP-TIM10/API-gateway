@@ -14,4 +14,5 @@ service ConnectionsGrpcService{
   rpc getMutuals(ConnectionsProto) returns (MutualsResponseProto);
   rpc getFollowers(ConnectionsProto) returns (ConnectionsResponseProto);
   rpc getConnections (ConnectionsProto) returns (ConnectionsResponseProto);
+  rpc getConnectionsEvents (ConnectionsEventProto) returns (ConnectionsEventResponseProto);
 }

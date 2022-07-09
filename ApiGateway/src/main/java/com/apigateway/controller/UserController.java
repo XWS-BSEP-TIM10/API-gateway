@@ -123,4 +123,14 @@ public class UserController {
     	Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasAuthority('GET_EVENTS_PERMISSION')")
+    @GetMapping(value = "/events")
+    public ResponseEntity<List<String>> getEvents() {
+        List<String> events = new ArrayList<>();
+        for(String event : userService.getEvents().getEventsList()){
+            events.add(event);
+        }
+        return ResponseEntity.ok(events);
+    }
 }

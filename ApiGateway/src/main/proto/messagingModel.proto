@@ -47,3 +47,9 @@ message FindChatMessagesResponseProto{
 		repeated FindChatMessageProto messages = 1;
 		string status = 2;
 }
+
+message MessagingEventProto{}
+
+message MessagingEventResponseProto{
+	repeated string events = 1;
+}

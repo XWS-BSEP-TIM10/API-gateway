@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface UserService {
 
+    ProfileEventResponseProto getEvents();
+
     UpdateUserResponseProto update(UpdateUserDTO dto);
 
     FindUserResponseProto find(String firstName, String lastName);
