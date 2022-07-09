@@ -1,6 +1,8 @@
 package com.apigateway.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,8 +44,14 @@ public class UserController {
     private final LoggerService loggerService;
     private final Counter httpRequests;
     
-    private static final String HTTP_STATUS_TAG = "http_status";
     private static final String COUNTER_NAME = "http_requests";
+    private static final String HTTP_STATUS_TAG = "http_status";
+    private static final String IP_ADDR_TAG = "ip_addr";
+    private static final String WEB_BROWSER_TAG = "web_browser";
+    private static final String TIMESTAMP_TAG = "timestamp";
+    private static final String ENDPOINT_TAG = "endpoint";
+    
+    private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     @Autowired
     public UserController(UserService userService, MeterRegistry registry) {
@@ -52,6 +60,10 @@ public class UserController {
         this.httpRequests = Counter.builder(COUNTER_NAME)
                 .description("Number of HTTP requests for server endpoints")
                 .tag(HTTP_STATUS_TAG, "200")
+                .tag( IP_ADDR_TAG, "")
+                .tag(WEB_BROWSER_TAG, "")
+                .tag(TIMESTAMP_TAG, "")
+                .tag(ENDPOINT_TAG, "/auth")
                 .register(registry);
     }
 
@@ -90,7 +102,7 @@ public class UserController {
                 UserDto dto = new UserDto(userProto);
                 users.add(dto);
             }
-            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200").increment();
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "200", IP_ADDR_TAG, request.getRemoteAddr(),WEB_BROWSER_TAG,request.getHeader("User-Agent"),TIMESTAMP_TAG,iso8601Formatter.format(new Date()),ENDPOINT_TAG,request.getRequestURI()).increment();
             return ResponseEntity.ok(users);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());

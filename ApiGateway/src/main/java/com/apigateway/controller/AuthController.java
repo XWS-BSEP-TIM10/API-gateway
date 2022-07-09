@@ -40,7 +40,10 @@ import proto.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +63,15 @@ public class AuthController {
     private static final String BAD_REQUEST_STATUS = "Status 400";
     private static final String TOKEN_EXPIRED = "Token expired";
     
-    private static final String HTTP_STATUS_TAG = "http_status";
     private static final String COUNTER_NAME = "http_requests";
+    private static final String HTTP_STATUS_TAG = "http_status";
+    private static final String IP_ADDR_TAG = "ip_addr";
+    private static final String WEB_BROWSER_TAG = "web_browser";
+    private static final String TIMESTAMP_TAG = "timestamp";
+    private static final String ENDPOINT_TAG = "endpoint";
+    
+    private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    
 
     public AuthController(AuthService authService, UserService userService, MeterRegistry registry) {
         this.authService = authService;
@@ -69,6 +79,10 @@ public class AuthController {
         this.httpRequests = Counter.builder(COUNTER_NAME)
                 .description("Number of HTTP requests for server endpoints")
                 .tag(HTTP_STATUS_TAG, "200")
+                .tag( IP_ADDR_TAG, "")
+                .tag(WEB_BROWSER_TAG, "")
+                .tag(TIMESTAMP_TAG, "")
+                .tag(ENDPOINT_TAG, "/auth")
                 .register(registry);
         this.loggerService = new LoggerServiceImpl(this.getClass());
     }
@@ -87,7 +101,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
             NewUserResponseDTO newUserResponseDTO = new NewUserResponseDTO(response.getId(), newUserDTO);
-            Metrics.counter("http_requests", HTTP_STATUS_TAG, "201").increment();
+            Metrics.counter("http_requests", HTTP_STATUS_TAG, "201", IP_ADDR_TAG, request.getRemoteAddr(),WEB_BROWSER_TAG,request.getHeader("User-Agent"),TIMESTAMP_TAG,iso8601Formatter.format(new Date()),ENDPOINT_TAG,request.getRequestURI()).increment();
             return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
