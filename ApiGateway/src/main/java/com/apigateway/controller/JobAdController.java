@@ -116,14 +116,9 @@ public class JobAdController {
             JobAdRecommendationsResponseProto response = jobRecommendationService.findRecommendations(userId);
             List<JobAdDTO> jobAds = new ArrayList<>();
             for (JobAdRequestProto jobAd : response.getRecommendationsList()) {
-                ConnectionsResponseProto connectionsResponseProto = connectionsService.getConnections(userId);
-                for(String id : connectionsResponseProto.getConnectionsList()){
-                    if(id.equals(jobAd.getUserId())){
-                        UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(id);
-                        JobAdDTO jobAdDto = new JobAdDTO(jobAd, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
-                        jobAds.add(jobAdDto);
-                    }
-                }
+                UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(jobAd.getUserId());
+                JobAdDTO jobAdDto = new JobAdDTO(jobAd, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
+                jobAds.add(jobAdDto);
             }
             return ResponseEntity.ok(jobAds);
         } catch (StatusRuntimeException ex) {
