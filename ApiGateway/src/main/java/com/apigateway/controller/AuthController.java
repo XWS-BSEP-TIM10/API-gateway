@@ -81,16 +81,20 @@ public class AuthController {
     private static final String WEB_BROWSER_TAG = "web_browser";
     private static final String TIMESTAMP_TAG = "timestamp";
     private static final String ENDPOINT_TAG = "endpoint";
+    
+
+ 
     private  final MeterRegistry registry;
     
     private final SimpleDateFormat iso8601Formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     
-
+    
     public AuthController(AuthService authService, UserService userService, MeterRegistry registry) {
         this.authService = authService;
         this.userService = userService;
         this.loggerService = new LoggerServiceImpl(this.getClass());
         this.registry = registry;
+        
     }
 
     @PostMapping("/signup")
@@ -115,9 +119,10 @@ public class AuthController {
                     .tag(WEB_BROWSER_TAG, request.getHeader("User-Agent"))
                     .tag(TIMESTAMP_TAG, iso8601Formatter.format(new Date()))
                     .tag(ENDPOINT_TAG, request.getRequestURI())
-                    .register(registry);           
+                    .register(registry); 
                     new MyThread(tempCounter).start();
-            return new ResponseEntity<>(newUserResponseDTO, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+            	      .body(newUserResponseDTO);
         } catch (StatusRuntimeException ex) {
             loggerService.grpcConnectionFailed(request.getMethod(), request.getRequestURI());
             Metrics.counter("http_requests", HTTP_STATUS_TAG, "500").increment();
