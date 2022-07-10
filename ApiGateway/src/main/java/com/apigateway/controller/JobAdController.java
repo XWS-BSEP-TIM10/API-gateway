@@ -119,7 +119,7 @@ public class JobAdController {
                 ConnectionsResponseProto connectionsResponseProto = connectionsService.getConnections(userId);
                 for(String id : connectionsResponseProto.getConnectionsList()){
                     if(id.equals(jobAd.getUserId())){
-                        UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(userId);
+                        UserNamesResponseProto userNamesResponseProto = userService.getFirstAndLastName(id);
                         JobAdDTO jobAdDto = new JobAdDTO(jobAd, userNamesResponseProto.getFirstName(), userNamesResponseProto.getLastName());
                         jobAds.add(jobAdDto);
                     }
