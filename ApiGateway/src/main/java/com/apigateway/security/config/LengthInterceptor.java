@@ -40,9 +40,9 @@ public class LengthInterceptor implements HandlerInterceptor {
 	
 	 @Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-		 System.out.println(request.getContentLength());
-		 System.out.println((request.getContentLength()/(double)(1024*1024*2014)));
-		 getTraffic.increment((request.getContentLength()/(double)(1024*1024*1024)));
+		 if(request.getContentLength() > 0) {
+			 getTraffic.increment((request.getContentLength() / (double) (1024 * 1024 * 1024)));
+		 }
 		 return true;
 	 }
 
@@ -57,19 +57,18 @@ public class LengthInterceptor implements HandlerInterceptor {
                  ReflectionUtils.getField(fils, responseFacade);
 		     
 		  Long responseSize = connectorResponse.getCoyoteResponse().getBytesWritten(true);
-		  System.out.println(responseSize);
-		  System.out.println((responseSize/(double)(1024*1024*1024)));
-		  getTraffic.increment((responseSize/(double)(1024*1024*1024)));
-		  
-		  Counter tempCounter = Counter.builder(COUNTER_NAME)
-                  .description("Number of HTTP requests for server endpoints")
-                  .tag(HTTP_STATUS_TAG, String.valueOf(response.getStatus()))
-                  .tag( IP_ADDR_TAG, request.getRemoteAddr())
-                  .tag(WEB_BROWSER_TAG, request.getHeader("User-Agent"))
-                  .tag(TIMESTAMP_TAG, iso8601Formatter.format(new Date()))
-                  .tag(ENDPOINT_TAG, request.getRequestURI())
-                  .register(AuthController.registry); 
-                  new MyThread(tempCounter).start();
+		  if(responseSize > 0){
+		  	getTraffic.increment((responseSize/(double)(1024*1024*1024)));
+		  }
+		 Counter tempCounter = Counter.builder(COUNTER_NAME)
+				 .description("Number of HTTP requests for server endpoints")
+				 .tag(HTTP_STATUS_TAG, String.valueOf(response.getStatus()))
+				 .tag( IP_ADDR_TAG, request.getRemoteAddr())
+				 .tag(WEB_BROWSER_TAG, request.getHeader("User-Agent"))
+				 .tag(TIMESTAMP_TAG, iso8601Formatter.format(new Date()))
+				 .tag(ENDPOINT_TAG, request.getRequestURI())
+				 .register(AuthController.registry);
+		 new MyThread(tempCounter).start();
 		}
 	 
 	 private static ResponseFacade getResponseFacade(HttpServletResponse response) {
