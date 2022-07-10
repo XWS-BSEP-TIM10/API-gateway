@@ -13,7 +13,7 @@ public class MyThread extends Thread {
     @Override
     public void run() {
     	try {
-			Thread.sleep(8000);
+			Thread.sleep(16000);
 			tempCounter.increment();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
